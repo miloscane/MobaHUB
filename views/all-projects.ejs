@@ -1,0 +1,134 @@
+<%- include ("partials/header2") -%>
+	<style>
+		#projects{width:100%;left:0;right:0;}
+		#project-opener{display:none !important;}
+	</style>
+	<div class="pageTitle" style="display:none;">All Projects</div>
+	<div id="all-projects-fixed">
+		<div class="item">Budget:</div>
+		<div class="item" style="width:250px;padding-left:20px">Spent:</div>
+		<div class="item">Start:</div>
+		<div class="item">Deadline:</div>
+		<div class="item">Finished:</div>
+	</div>
+		<script>
+			var projectButtons 	=	document.getElementById("projects").querySelectorAll(".projectButton");
+			for(var i=0;i<projectButtons.length;i++){
+				for(var j=0;j<infoForPage.projects.length;j++){
+					if(projectButtons[i].dataset.projectcode==infoForPage.projects[j].code){
+						var project	=	JSON.parse(JSON.stringify(infoForPage.projects[j]));
+						break;
+					}
+				}
+				var projectWrap		=	projectButtons[i].parentElement;
+
+				
+				var projectBudget	=	document.createElement("DIV");
+				projectBudget.setAttribute("class","projectBudget projectItem");
+				var hourBudget	=	(project.budgetedhours && project.budgetedhours!=0) ? project.budgetedhours : "0";
+				projectBudget.innerHTML=hourBudget;
+				projectWrap.appendChild(projectBudget);
+				
+				var projectSpent	=	document.createElement("DIV");
+				projectSpent.setAttribute("class","projectSpent projectItem");
+				
+				projectSpent.innerHTML=roundedHours(infoForPage.projects[i].spenthours);
+				projectWrap.appendChild(projectSpent);
+				
+				var projectSpentBarWrap	=	document.createElement("DIV");
+				projectSpentBarWrap.setAttribute("class","projectSpentBarWrap projectItem");
+				
+					var projectSpentBar	=	document.createElement("DIV");
+					projectSpentBar.setAttribute("class","projectSpentBar");
+					var budgetRatio	=	(project.budgetedhours && project.budgetedhours!=0) ? eval(project.spenthours/project.budgetedhours*100) : 0;
+					var colorString	=	(budgetRatio<=101) ? "rgb(27,255,0)" : (budgetRatio>101 && budgetRatio<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
+					projectSpentBar.setAttribute("style","background-color:"+colorString+";width:"+budgetRatio+"%;");
+					projectSpentBarWrap.appendChild(projectSpentBar);
+				
+				projectWrap.appendChild(projectSpentBarWrap);
+
+
+				var projectStart	=	document.createElement("DIV");
+				projectStart.setAttribute("class","projectStart projectItem");
+				projectStart.innerHTML=datetimeToDate(project.startdate);
+				projectWrap.appendChild(projectStart);
+					
+				var projectEnd	=	document.createElement("DIV");
+				projectEnd.setAttribute("class","projectEnd projectItem");
+				projectEnd.innerHTML=datetimeToDate(project.deadline);
+				projectWrap.appendChild(projectEnd);
+
+				
+				var projectFinished	=	document.createElement("DIV");
+				projectFinished.setAttribute("class","projectFinished projectItem");
+				if(Number(project.finished)==1){
+					projectFinished.innerHTML=datetimeToDate(project.finisheddate);
+				}else{
+					projectFinished.innerHTML="/";
+				}
+				projectWrap.appendChild(projectFinished);
+				
+				
+				var projectExtraButtonsWrap	=	document.createElement("DIV");
+				projectExtraButtonsWrap.setAttribute("class","projectExtraButtonsWrap projectItem");
+					if(project.extrabuttons){
+						for(var j=0;j<project.extrabuttons.length;j++){
+							var button	=	document.createElement("DIV");
+							button.setAttribute("class","whiteButton");
+							
+							button.setAttribute("onclick","copyLink(this)");
+							button.setAttribute("data-url",project.extrabuttons[j].url);
+							button.innerHTML=project.extrabuttons[j].caption;
+							projectExtraButtonsWrap.appendChild(button);
+							
+						}
+					}
+				
+				projectWrap.appendChild(projectExtraButtonsWrap);
+
+			}
+			var bars	=	document.getElementsByClassName("projectSpentBar");
+			for(var i=0;i<bars.length;i++){
+				if(bars[i].clientWidth>150){
+					bars[i].style.width="150px"
+				}
+			}
+			
+			function copyLink(elem){
+				copyText(elem.dataset.url);
+				toast("The link to the "+elem.innerHTML+" was copied.<br>Paste into a new tab.",4000);
+			}
+			
+			function pickProject(projectCode,button){
+				redirectWithQuery("/project-view/"+projectCode)
+			}
+
+			document.querySelectorAll("body")[0].scrollTop	=	urlObject.projectscroll;
+
+			document.getElementById("projects").classList.add("allProjects");
+			const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+			if(vw>900){
+				var leftOffset		=	363;
+			}else{
+				var leftOffset		=	vw*0.33-10+5;
+			}
+			
+			document.getElementById("all-projects-fixed").style.left	=	leftOffset+"px";
+
+			document.getElementById("projects").addEventListener("scroll", function(event) {
+				document.getElementById("all-projects-fixed").style.left	=	eval(leftOffset - event.target.scrollLeft) + "px"; 
+			});
+
+
+			window.addEventListener('resize', function(event){
+				const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+				if(vw>900){
+					leftOffset		=	363;
+				}else{
+					leftOffset		=	vw*0.33-10+5;
+				}
+				
+				document.getElementById("all-projects-fixed").style.left	=	leftOffset+"px";
+			});
+		</script>
+<%- include ("partials/footer") -%>

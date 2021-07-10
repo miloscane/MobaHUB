@@ -1,0 +1,125 @@
+<%- include ("partials/header2") -%>
+	<div class="pageTitle">Project Edit</div>
+	<div class="pageSubtitle"></div>
+	<div id="project-edit" class="projectEditorWrap">
+		<div class="itemWrap">
+			<div class="itemTitle">Company:</div>
+			<div class="itemInputWrap">
+				<input type="text" class="projectCompany">
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle">Project Name:</div>
+			<div class="itemInputWrap">
+				<input type="text" class="projectName">
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle">Team:</div>
+			<div class="itemInputWrap projectTeamWrap"></div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle">Project Start:</div>
+			<div class="itemInputWrap">
+				<input type="date" class="projectStart">
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle">Project Deadline:</div>
+			<div class="itemInputWrap">
+				<input type="date" class="projectDeadline">
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle">Project Finished:</div>
+			<div class="itemInputWrap projectFinishedWrap"></div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap" id="finished-date">
+			<div class="itemTitle">Date Finished:</div>
+			<div class="itemInputWrap">
+				<input type="date" class="projectFinishedDate">
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle">Hide Project:</div>
+			<div class="itemInputWrap projectHiddenWrap"></div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle">Budgeted hours:</div>
+			<div class="itemInputWrap">
+				<input type="number" class="budgetedHours">
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle" style="vertical-align:top">Project description:</div>
+			<div class="itemInputWrap">
+				<textarea class="projectDescription"></textarea>
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle" style="vertical-align:top">Extra buttons:</div>
+			<div class="itemInputWrap">
+				<table class="extraButtonsTable"></table>
+				<div class="blueButton addExtraButton" onclick="addExtraButton()">Add a button</div>
+			</div>
+			<div class="itemNote"></div>
+		</div>
+		<div class="itemWrap">
+			<div class="itemTitle" style="vertical-align:top">Project tasks:</div>
+			<div class="itemInputWrap tasks">
+				
+			</div>
+			<div class="itemNote"></div>
+		</div>
+	</div>
+	<div class="submitButtonWrap">
+		<div class="clickableButton" onclick="submitProject()">Submit project changes</div>
+	</div>
+	<form style="display:none" method="POST" action="/postProject" id="post-project-form">
+		<input type="text" id="project-input-form" name="projectjson">
+		<input type="text" id="url-query" name="urlquery">
+	</form>
+	<script src="/html-modules/projectEditScripts.js"></script>
+	<script>
+		if(document.getElementById("hidden-projects-wrap")){
+			document.getElementById("hidden-projects-wrap").style.display	=	"block";
+		}
+		
+		var newProjectButton		=	document.createElement("DIV");
+		newProjectButton.setAttribute("class","newProjectButton");
+		newProjectButton.setAttribute("onclick","showProject()");
+		newProjectButton.innerHTML	=	"+";
+		document.getElementById("projects").querySelectorAll(".projectList")[0].appendChild(newProjectButton);
+
+		if(urlObject.lastproject){
+			showProject(urlObject.lastproject);
+		}else{
+			showProject(infoForPage.projects[0].code)
+		}
+		
+	</script>
+	<script>
+		function pickProject(projectCode,button){
+			showProject(projectCode);
+			urlObject.lastproject	=	projectCode;
+			var buttons	=	document.getElementById("projects").querySelectorAll(".whiteButton");
+			for(var i=0;i<buttons.length;i++){
+				if(buttons[i].dataset.projectcode==projectCode){
+					buttons[i].classList.add("whiteButtonActive");
+				}else{
+					buttons[i].classList.remove("whiteButtonActive");
+				}
+			}
+		}
+	</script>
+<%- include ("partials/footer") -%>

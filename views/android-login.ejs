@@ -1,0 +1,71 @@
+<%- include ("partials/header2") -%>
+	<div class="background"></div>
+	<div class="fullscreen" style="overflow:auto">
+		<div class="container" style="position:relative;transform:none;-webkit-transform:none;top:0;left:0;margin:0 auto;margin-top:20px;">
+			<form id="login" method="post" action="/android-login">
+				<div class="inputWrapper">
+					<div class="inputTitle">E-mail</div>
+					<div class="inputWrap">
+						<input type="text" name="email" class="singleLineInput">
+					</div>
+				</div>
+				<div class="inputWrapper">
+					<div class="inputTitle">Password</div>
+					<div class="inputWrap">
+						<input type="password" name="password" class="singleLineInput">
+					</div>
+				</div>
+				<div class="inputWrapper">
+					<div class="inputTitle">Device Name</div>
+					<div class="inputSubtitle">If you provide a device name you will log in <b>automatically</b> from this device. (Default name of your device is: <%= deviceName %>)</div>
+					<div class="inputWrap">
+						<input type="text" name="devicename" class="singleLineInput">
+					</div>
+				</div>
+				<input type="text" style="display:none" name="deviceid" id="deviceid" class="singleLineInput">
+				<div class="clickableButton2" style="margin-left:0px;margin-right:0px;margin-top:50px;padding:10px" onclick="shouldSubmit()">Log IN</div>
+			</form>
+			<script>
+				
+					document.getElementById("deviceid").value="<%- deviceId %>";
+				
+				function validateEmail(email) {
+					var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+					return re.test(String(email).toLowerCase());
+				}
+				
+				function shouldSubmit(){
+					var email		=	document.querySelectorAll(".singleLineInput")[0].value;
+					var password	=	document.querySelectorAll(".singleLineInput")[1].value;
+					if(!validateEmail(email)){
+						document.querySelectorAll(".inputWrapper")[0].style.border="2px solid rgb(255,0,0)";
+					}
+					
+					if(!password){
+						document.querySelectorAll(".inputWrapper")[1].style.border="2px solid rgb(255,0,0)";
+					}
+					
+					if(validateEmail(email) && password){
+						document.getElementById("login").submit()
+					}
+				}
+				
+				document.querySelectorAll(".singleLineInput")[1].addEventListener('keypress', function(event) {
+					if (event.keyCode == 13) {
+						shouldSubmit();
+					}
+				});
+			</script>
+		</div>
+	</div>
+	
+	<style>
+		#container2{
+			padding:0 !important;
+		}
+		
+		#top-menu{display:none;}
+
+		#menu-opener{display:none;}
+	</style>
+<%- include ("partials/footer") -%>

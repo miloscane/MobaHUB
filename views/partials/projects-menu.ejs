@@ -1,0 +1,192 @@
+			<% if (typeof infoForPage!="undefined") { %>
+				<% if (Number(infoForPage.settings.menuSort)==2) { %>
+					<!--Custom project sorting here-->
+					<div id="projects"></div>
+					<script>
+						var unsortedProjects		=	[];
+						var sortedProjects		=	[];
+						for(var i=0;i<infoForPage.settings.customprojectsort.length;i++){
+							for(var j=0;j<infoForPage.settings.customprojectsort[i].projects.length;j++){
+								sortedProjects.push(infoForPage.settings.customprojectsort[i].projects[j]);
+							}
+						}
+
+						for(var i=0;i<infoForPage.projects.length;i++){
+							if(sortedProjects.indexOf(infoForPage.projects[i].code)<0){
+								unsortedProjects.push(infoForPage.projects[i].code)
+							}
+						}
+
+						for(var i=0;i<infoForPage.settings.customprojectsort.length;i++){
+							var projectList	=	document.createElement("DIV");
+							projectList.setAttribute("class","projectList");
+							if(infoForPage.settings.customprojectsort[i].name.toLowerCase()=="hidden"){
+								projectList.setAttribute("id","hidden-projects-wrap");
+							}
+
+								var projectListTitle		=	document.createElement("DIV");
+								projectListTitle.innerHTML	=	infoForPage.settings.customprojectsort[i].name;
+								projectListTitle.setAttribute("class","projectListTitle");
+								projectList.appendChild(projectListTitle);
+
+								var projectListTitleSeparator		=	document.createElement("DIV");
+								projectListTitleSeparator.setAttribute("class","projectListTitleSeparator");
+								projectList.appendChild(projectListTitleSeparator);
+
+								var div	=	document.createElement("DIV");
+								for(var j=0;j<infoForPage.settings.customprojectsort[i].projects.length;j++){
+									if(infoForPage.settings.customprojectsort[i].projects[j]!="new"){
+										var project		=	getProjectJsonFromCode(infoForPage.settings.customprojectsort[i].projects[j]);
+										var projectWrap =	document.createElement("DIV");
+										projectWrap.setAttribute("class","projectWrap");
+										
+
+											var button	=	document.createElement("DIV");
+											button.setAttribute("class","whiteButton projectButton");
+											button.setAttribute("data-projectcode",project.code);
+											button.setAttribute("onclick","pickProject('"+project.code+"',this)");
+											if(project.code=="Holiday" || project.code=="Illness" || project.code=="Vacation"){
+												button.innerHTML	=	project.dispname;
+											}else{
+												button.innerHTML	=	"<div class='companyName'>"+project.company+"</div>"+"<div class='projectName'>"+project.dispname+"</div>";
+											}
+										projectWrap.appendChild(button);
+										div.appendChild(projectWrap);	
+									}else{
+										//Add projects that are unsorted
+										for(var k=0;k<unsortedProjects.length;k++){
+											var project		=	getProjectJsonFromCode(unsortedProjects[k]);
+											var projectWrap =	document.createElement("DIV");
+											projectWrap.setAttribute("class","projectWrap");
+
+												var button	=	document.createElement("DIV");
+												button.setAttribute("class","whiteButton projectButton");
+												button.setAttribute("data-projectcode",project.code);
+												button.setAttribute("onclick","pickProject('"+project.code+"',this)");
+												if(project.code=="Holiday" || project.code=="Illness" || project.code=="Vacation"){
+													button.innerHTML	=	project.dispname;
+												}else{
+													button.innerHTML	=	"<div class='companyName'>"+project.company+"</div>"+"<div class='projectName'>"+project.dispname+"</div>";
+												}
+											projectWrap.appendChild(button);
+											div.appendChild(projectWrap);	
+										}
+									}
+									
+								}
+
+								projectList.appendChild(div);
+
+							document.getElementById("projects").appendChild(projectList);
+						}
+
+
+					</script>
+				<% }else{ %>
+					<div id="projects">
+						<div class="projectList">
+							<div class="projectListTitle">Running projects</div>
+							<div class="projectListTitleSeparator"></div>
+							<div id="running-projects"></div>
+						</div>
+						<div class="projectList">
+							<div class="projectListTitle">Finished projects</div>
+							<div class="projectListTitleSeparator"></div>
+							<div id="finished-projects"></div>
+						</div>
+						<div class="projectList">
+							<div class="projectListTitle">Internal Projects</div>
+							<div class="projectListTitleSeparator"></div>
+							<div id="other-stuff"></div>
+						</div>
+						<div class="projectList" id="hidden-projects-wrap">
+							<div class="projectListTitle">Hidden</div>
+							<div class="projectListTitleSeparator"></div>
+							<div id="hidden-projects"></div>
+						</div>
+					</div>
+					<script>
+						var projects			=	JSON.parse(JSON.stringify(infoForPage.projects));
+						var finishedProjects 	=	[];
+						for(var i=0;i<projects.length;i++){
+							var project	=	JSON.parse(JSON.stringify(projects[i]));
+
+							var projectWrap 	=	document.createElement("DIV");
+							projectWrap.setAttribute("class","projectWrap");
+
+								var button	=	document.createElement("DIV");
+								button.setAttribute("class","whiteButton projectButton");
+								button.setAttribute("data-projectcode",project.code);
+								button.setAttribute("onclick","pickProject('"+project.code+"',this)");
+								if(project.code=="Holiday" || project.code=="Illness" || project.code=="Vacation"){
+									button.innerHTML	=	project.dispname;
+								}else{
+									button.innerHTML	=	"<div class='companyName'>"+project.company+"</div>"+"<div class='projectName'>"+project.dispname+"</div>";
+								}
+
+							projectWrap.appendChild(button);
+
+							if(!project.hidden){
+								if(project.finished){
+									if(project.company!="Mobatec"){
+										//Finished Projects
+										var finishedProject 			=	{};
+										finishedProject.code			=	project.code;
+										finishedProject.finisheddate	=	(project.finisheddate) ? Number(project.finisheddate) : 0;
+										finishedProjects.push(finishedProject);
+
+										//document.getElementById("finished-projects").appendChild(projectWrap);
+									}else{
+										document.getElementById("other-stuff").appendChild(projectWrap);
+									}
+								}else{
+									if(project.code=="Holiday" || project.code=="Illness" || project.code=="Vacation" || project.company=="Mobatec"){
+										document.getElementById("other-stuff").appendChild(projectWrap);
+									}else{
+										//Running projects
+										document.getElementById("running-projects").appendChild(projectWrap);
+									}
+								}
+							}else{
+								//Hidden Projects
+								document.getElementById("hidden-projects").appendChild(projectWrap);
+							}
+						}
+						finishedProjects.sort( function( a, b ) {
+						    return b.finisheddate-a.finisheddate;
+						});
+						
+						for(var i=0;i<finishedProjects.length;i++){
+							var project	=	getProjectJsonFromCode(finishedProjects[i].code);
+
+							var projectWrap 	=	document.createElement("DIV");
+							projectWrap.setAttribute("class","projectWrap");
+
+								var button	=	document.createElement("DIV");
+								button.setAttribute("class","whiteButton projectButton");
+								button.setAttribute("data-projectcode",project.code);
+								button.setAttribute("onclick","pickProject('"+project.code+"',this)");
+								button.innerHTML	=	"<div class='companyName'>"+project.company+"</div>"+"<div class='projectName'>"+project.dispname+"</div>";
+								projectWrap.appendChild(button);
+
+							document.getElementById("finished-projects").appendChild(projectWrap)
+						}
+						
+					</script>
+				<% } %>
+				<script>
+					var reorderedProjects	=	[];
+					for(var i=0;i<document.getElementById("projects").querySelectorAll(".whiteButton").length;i++){
+						var projectCode	=	document.getElementById("projects").querySelectorAll(".whiteButton")[i].dataset.projectcode;
+						for(var j=0;j<infoForPage.projects.length;j++){
+							if(projectCode==infoForPage.projects[j].code){
+								reorderedProjects.push(JSON.parse(JSON.stringify(infoForPage.projects[j])));
+								break;
+							}
+						}
+					}
+					infoForPage.projects	=	JSON.parse(JSON.stringify(reorderedProjects));
+				</script>
+			<% } %>
+			
+			

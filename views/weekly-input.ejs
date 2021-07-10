@@ -1,0 +1,842 @@
+<%- include ("partials/header2") -%>
+	<div class="pageTitle">Hour Input</div>
+	<div id="users"></div>
+	<script>
+		var userButton	=	document.createElement("DIV");
+		userButton.setAttribute("class","blueButton blueButtonActive");
+		userButton.setAttribute("data-usercode",infoForPage.user);
+		userButton.setAttribute("onclick","setUser('"+infoForPage.user+"')");
+		userButton.innerHTML=getUserAbrvFromCode(infoForPage.user);
+		document.getElementById("users").appendChild(userButton);
+		
+		for(var i=0;i<infoForPage.team.length;i++){
+			if(infoForPage.team[i].code!=infoForPage.user){
+				var userButton	=	document.createElement("DIV");
+				userButton.setAttribute("class","blueButton");
+				userButton.setAttribute("data-usercode",infoForPage.team[i].code);
+				userButton.setAttribute("onclick","setUser('"+infoForPage.team[i].code+"')");
+				userButton.innerHTML=getUserAbrvFromCode(infoForPage.team[i].code);
+				document.getElementById("users").appendChild(userButton);
+			} 
+		}
+	</script>
+	<div class="weeklyInputWrap" style="position:relative">
+		<div class="weeklyHours">
+			<div class="projectInformation">
+				<div class="informationWrap projectInformationWrapVladimir"><div class="note">Project:</div><div class="information" id="project-title"></div></div>
+				<div class="informationWrap"><div class="note">Start:</div><div class="information" id="project-start"></div></div>
+				<div class="informationWrap"><div class="note">Deadline:</div><div class="information" id="project-deadline"></div></div>
+				<div class="informationWrap"><div class="note">Today:</div><div class="information" id="project-today"></div></div>
+				<div class="informationWrap"><div class="note">Total hour Budget:</div><div class="information" id="project-hourbudget"></div></div>
+				<div class="informationWrap"><div class="note">Total hours spent:</div><div class="information" id="project-spenthours"></div></div>
+			</div>
+			<div style="border-top:1px solid rgb(150,150,150);border-bottom:1px solid rgb(150,150,150);margin:15px auto;width:300px;"></div>
+			<div class="weekNumber">
+				<div class="inline">Date:</div> 
+				<div class="inline">
+					<input type="date" id="date-input" oninput="inputDate(this)" min="2018-01-01">
+					<script>
+						var maxYear		=	new Date().getFullYear();
+						var maxMonth	=	eval(new Date().getMonth()+1).toString();
+						maxMonth		=	(maxMonth.toString().length==1) ? "0"+ maxMonth : maxMonth;
+						var maxDay		=	new Date().getDate();
+						maxDay++;
+						maxDay			=	(maxDay.toString().length==1) ? "0"+ maxDay : maxDay;
+						var maxString	=	maxYear + "-" + maxMonth + "-" + maxDay;
+						//document.getElementById("date-input").setAttribute("max",maxString);
+					</script>
+				</div>
+			</div>
+			<div class="weekControlsWrap">
+				<div class="weekControl weekControlLeft" onclick="previousWeek()"><</div>
+				<div class="weekTableWrap">
+					<table class="weekTable">
+						<tr>
+							<td><div class="weekDate"></div></td><td><div class="weekDate"></div></td><td><div class="weekDate"></div></td><td><div class="weekDate"></div></td><td><div class="weekDate"></div></td><td><div class="weekDate weekDateWeekend"></div></td><td><div class="weekDate weekDateWeekend"></div></td>
+						</tr>
+						<tr>
+							<td><div class="weekDay">Mon</div></td><td><div class="weekDay">Tue</div></td><td><div class="weekDay">Wed</div></td><td><div class="weekDay">Thu</div></td><td><div class="weekDay">Fri</div></td><td><div class="weekDay weekDayWeekend">Sat</div></td><td><div class="weekDay weekDayWeekend">Sun</div></td>
+						</tr>
+					</table>
+				</div>
+				<div class="weekControl weekControlRight" onclick="nextWeek()">></div>
+			</div>
+			<div class="weekInputTasks" id="tasks"></div>
+			
+		</div>
+		<div class="weeklyInputOverview">
+			<div class="title">Hours Overview</div>
+			<div id="input-overview">
+				
+			</div>
+			<div class="whiteButton" onclick="submitWeek()">Submit Hours</div>
+		</div>
+		<form style="display:none" method="POST" action="/postHours" id="hour-form">
+			<input type="text" id="hours-input-form" name="hours">
+			<input type="text" id="url-query" name="urlquery">
+		</form>
+	</div>
+	<script>
+		var hours		=	<%- JSON.stringify(hours) %>;
+		
+		function nextWeek(){
+			var date		=	new Date(document.getElementById("date-input").value).getTime();
+			var newDate		=	new Date(date+8*8.64e+7);
+			if(newDate.getTime()<new Date(document.getElementById("date-input").max).getTime()){
+				setDateOfPage(newDate.getTime());
+				refresh();
+			}
+		}
+		
+		function previousWeek(){
+			var date		=	new Date(document.getElementById("date-input").value).getTime();
+			var newDate		=	new Date(date-10*8.64e+7);
+			if(newDate.getTime()>new Date(document.getElementById("date-input").min).getTime()){
+				setDateOfPage(newDate.getTime());
+				refresh();
+			}
+		}
+
+		function inputDate(elem){
+			if(elem.value){
+				var dateToSet	=	new Date(elem.value);
+				setDateOfPage(dateToSet.getTime());
+				refresh();
+			}
+		}
+
+		function hourInput(elem){
+			if(elem.value>24){
+				elem.value=24;
+			}else if(elem.value<0){
+				elem.value=0;
+			}
+			
+			elem.value			=	Number(elem.value);
+			var hourJson		=	{};
+			hourJson.filetype	=	"hours"
+			hourJson.hours		=	Number(elem.value);
+			hourJson.comment	=	elem.parentElement.querySelectorAll(".commentInput")[0].value;
+			hourJson.date		=	Number(elem.dataset.datetime);
+			hourJson.showdate	=	datetimeToDate(elem.dataset.datetime);
+			hourJson.day		=	Number(new Date(hourJson.date).getDate());
+			hourJson.month		=	Number(eval(new Date(hourJson.date).getMonth()+1));
+			hourJson.year		=	Number(new Date(hourJson.date).getFullYear());
+			hourJson.pcode		=	elem.dataset.projectcode;
+			hourJson.task		=	elem.dataset.task;
+			hourJson.subtask	=	elem.dataset.subtask;
+			hourJson.engcode	=	user;
+			hourJson.sender		=	infoForPage.user;
+			hourJson.createddate=	new Date().getTime();
+			
+			//Check if day already exists
+			var elemIndex		=	-1;
+			var hourElems		=	document.getElementById("input-overview").querySelectorAll(".hourElem");
+			for(var i=0;i<hourElems.length;i++){
+				var existingHourJson	=	JSON.parse(hourElems[i].dataset.hourjson);
+				if(isSameDate(hourJson.date,existingHourJson.date)){
+					if(existingHourJson.pcode==hourJson.pcode){
+						if(existingHourJson.task==hourJson.task && existingHourJson.subtask==hourJson.subtask){
+							if(existingHourJson.engcode==hourJson.engcode){
+								elemIndex	=	i;
+								break;
+							}
+						}
+					}
+				}
+			}
+			if(elemIndex>=0){
+				//hours already exist, remove that element
+				hourElems[elemIndex].parentNode.removeChild(hourElems[elemIndex]);
+			}
+			var hourElem		=	document.createElement("DIV");
+			hourElem.setAttribute("class","hourElem");
+			hourElem.setAttribute("data-hourjson",JSON.stringify(hourJson));
+			hourElem.setAttribute("onclick","showHours(this)");
+			hourElem.innerHTML	=	getUserAbrvFromCode(hourJson.engcode) + " // " + datetimeToDate(hourJson.date) + " // " + fullProjectNameFromCode(hourJson.pcode) + " // " + hourJson.hours;
+			document.getElementById("input-overview").appendChild(hourElem);
+			sumUpSubTasks();
+		}
+		
+		function comment(elem){
+			hourInput(elem.parentElement.parentElement.querySelectorAll(".hourInput")[0]);
+		}
+		
+		function showComment(elem){
+			var commentElem	=	elem.parentElement.querySelectorAll(".commentInput")[0];
+			if(commentElem.style.display=="none"){
+				commentElem.style.display="block";
+				elem.innerHTML="Close Comment";
+			}else if(commentElem.style.display=="block"){
+				commentElem.style.display="none";
+				elem.innerHTML="Comment";
+			}
+		}
+		
+		
+		function submitWeek(){
+			var hourJsons	=	[];
+			var hourElems	=	document.getElementById("input-overview").querySelectorAll(".hourElem");
+			for(var i=0;i<hourElems.length;i++){
+				hourJsons.push(JSON.parse(hourElems[i].dataset.hourjson))
+			}
+			if(hourJsons.length>0){
+				document.getElementById("hours-input-form").value	=	JSON.stringify(hourJsons);
+				urlObject.projectscroll	=	Number(document.getElementById("projects").scrollTop);
+				var keys				=	Object.keys(urlObject);
+				var queryString			=	"?";
+				for(var i=0;i<keys.length;i++){
+					queryString 		+=	keys[i] + "=" + urlObject[keys[i]] + "&";
+				}
+				queryString			=	queryString.substring(0,queryString.length-1);
+				document.getElementById("url-query").value	=	queryString;
+				document.getElementById("hour-form").submit();
+			}
+		}
+
+		function setUser(userCode){
+			user			=	userCode;
+			urlObject.eng	=	userCode;
+			for(var i=0;i<document.getElementById("users").querySelectorAll(".blueButton").length;i++){
+				if(document.getElementById("users").querySelectorAll(".blueButton")[i].dataset.usercode==userCode){
+					document.getElementById("users").querySelectorAll(".blueButton")[i].classList.add("blueButtonActive");
+				}else{
+					document.getElementById("users").querySelectorAll(".blueButton")[i].classList.remove("blueButtonActive");
+				}
+			}
+			refresh();
+			for(var i=0;i<document.getElementsByClassName("hourInput").length;i++){
+				if(user	==	infoForPage.user){
+					document.getElementsByClassName("hourInput")[i].disabled=false;
+				}else{
+					if(getUserRole(infoForPage.user)>10){
+						document.getElementsByClassName("hourInput")[i].disabled=true;
+					}else{
+						document.getElementsByClassName("hourInput")[i].disabled=false;
+					}
+				}
+			}
+		}
+
+		function pickProject(projectCode,button){
+			pickedProject	=	projectCode;
+			urlObject.lastproject	=	projectCode;
+			refresh();
+		}
+		
+		
+		function refreshProject(){
+			var dateToSet			=	new Date(document.getElementById("date-input").value).getTime();
+			var monday				=	getMonday(dateToSet);
+			var columnToHighlight	=	-1;
+			for(var i=0;i<7;i++){
+				var dateTemp		=	monday.getTime()+i*8.64e+7;
+				if(isSameDate(dateToSet,dateTemp)){
+					columnToHighlight	=	i;
+					document.getElementsByClassName("weekDay")[i].classList.add("today");
+					document.getElementsByClassName("weekDate")[i].classList.add("today");
+				}else{
+					document.getElementsByClassName("weekDay")[i].classList.remove("today");
+					document.getElementsByClassName("weekDate")[i].classList.remove("today");
+				}
+				dateTemp			=	new Date(dateTemp);
+				document.getElementsByClassName("weekDate")[i].innerHTML	=	dateTemp.getDate()+"-"+eval(dateTemp.getMonth()+1);
+			}
+
+			var buttons	=	document.getElementById("projects").querySelectorAll(".whiteButton");
+			for(var i=0;i<buttons.length;i++){
+				if(buttons[i].dataset.projectcode==pickedProject){
+					buttons[i].classList.add("whiteButtonActive");
+				}else{
+					buttons[i].classList.remove("whiteButtonActive");
+				}
+			}
+			
+			for(var i=0;i<infoForPage.projects.length;i++){
+				if(pickedProject==infoForPage.projects[i].code){
+					var projectJson	=	JSON.parse(JSON.stringify(infoForPage.projects[i]));
+					break;
+				}
+			}
+			document.getElementById("project-title").innerHTML			=	"<sup>"+projectJson.company+"</sup><b> "+projectJson.dispname+"</b>";
+			document.getElementById("project-title").dataset.pcode		=	projectJson.code;
+			document.getElementById("project-start").innerHTML			=	datetimeToDate(projectJson.startdate);
+			document.getElementById("project-deadline").innerHTML		=	datetimeToDate(projectJson.deadline);
+			document.getElementById("project-today").innerHTML			=	datetimeToDate(new Date().getTime());
+			if(projectJson.budgetedhours){
+				document.getElementById("project-hourbudget").innerHTML	=	projectJson.budgetedhours;
+			}else{
+				document.getElementById("project-hourbudget").innerHTML	=	"Not defined";
+			}
+			
+			document.getElementById("project-spenthours").innerHTML		=	roundedHours(projectJson.spenthours);
+			
+			
+			var table	=	document.createElement("table");
+			table.setAttribute("class","taskTable");
+			//Create tasks
+			for(var i=0;i<projectJson.tasks.length;i++){
+				var taskJson	=	JSON.parse(JSON.stringify(projectJson.tasks[i]));
+				if(taskJson.subTasks.length>=1){
+				
+					var tr	=	document.createElement("tr");
+					tr.setAttribute("class","task");
+					tr.setAttribute("data-hassubtasks",1);
+					tr.setAttribute("data-taskname",taskJson.title);
+					
+						var td	=	document.createElement("td");
+						
+							var div	=	document.createElement("div");
+							div.setAttribute("class","name");
+							div.innerHTML=taskJson.title;
+							td.appendChild(div);
+							
+							var div	=	document.createElement("div");
+							div.setAttribute("class","information");
+							
+								
+							if(taskJson.startdate){
+									var taskInfoWrap	=	document.createElement("div");
+									taskInfoWrap.setAttribute("class","taskInfoWrap");
+								
+									var note	=	document.createElement("div");
+									note.setAttribute("class","note");
+									note.innerHTML="Start";
+									taskInfoWrap.appendChild(note);
+									
+									var info	=	document.createElement("div");
+									info.setAttribute("class","info");
+									info.innerHTML=datetimeToDate(taskJson.startdate);
+									taskInfoWrap.appendChild(info);
+								div.appendChild(taskInfoWrap);
+							}
+							
+							
+							if(taskJson.deadline){
+									var taskInfoWrap	=	document.createElement("div");
+									taskInfoWrap.setAttribute("class","taskInfoWrap");
+									
+										var note	=	document.createElement("div");
+										note.setAttribute("class","note");
+										note.innerHTML="End";
+										taskInfoWrap.appendChild(note);
+										
+										var info	=	document.createElement("div");
+										info.setAttribute("class","info");
+										if(Number(taskJson.useprojectdeadline)==1){
+											info.innerHTML=datetimeToDate(projectJson.deadline);
+										}else{
+											info.innerHTML=datetimeToDate(taskJson.deadline);
+										}
+										
+										
+										taskInfoWrap.appendChild(info);
+								div.appendChild(taskInfoWrap);
+							}
+							
+							if(taskJson.budgetedhours){
+									var taskInfoWrap	=	document.createElement("div");
+									taskInfoWrap.setAttribute("class","taskInfoWrap");
+									
+										var note	=	document.createElement("div");
+										note.setAttribute("class","note");
+										note.innerHTML="Hour Budget";
+										taskInfoWrap.appendChild(note);
+										
+										var info	=	document.createElement("div");
+										info.setAttribute("class","info");
+										info.innerHTML=taskJson.budgetedhours;
+										taskInfoWrap.appendChild(info);
+								div.appendChild(taskInfoWrap);
+							}
+							
+								var taskInfoWrap	=	document.createElement("div");
+								taskInfoWrap.setAttribute("class","taskInfoWrap");
+								
+									var note	=	document.createElement("div");
+									note.setAttribute("class","note");
+									note.innerHTML="Spent Hours";
+									taskInfoWrap.appendChild(note);
+									
+									var info	=	document.createElement("div");
+									info.setAttribute("class","info");
+									var spent	=	0;
+									for(var j=0;j<taskJson.subTasks.length;j++){
+										var subTask	=	JSON.parse(JSON.stringify(taskJson.subTasks[j]));
+										spent	= eval(spent+Number(subTask.spenthours));
+									}
+									info.innerHTML=roundedHours(spent);
+									taskInfoWrap.appendChild(info);
+							div.appendChild(taskInfoWrap);
+							
+						
+						td.appendChild(div);
+					
+					tr.appendChild(td);
+					
+					for(var j=0;j<7;j++){
+						var td	=	document.createElement("td");
+						var div	=	document.createElement("div");
+						div.setAttribute("class","hourInputTaskWithSubtasks");
+						div.innerHTML="0";
+						td.appendChild(div);
+						tr.appendChild(td);
+					}
+					
+					table.appendChild(tr);
+					
+					//Subtasks
+					for(var j=0;j<taskJson.subTasks.length;j++){
+						var subTaskJson	=	JSON.parse(JSON.stringify(taskJson.subTasks[j]));
+						
+						var tr	=	document.createElement("tr");
+						tr.setAttribute("class","subtask");
+						tr.setAttribute("data-task",taskJson.title);
+						
+							var td	=	document.createElement("td");
+							
+								var div	=	document.createElement("div");
+								div.setAttribute("class","name");
+								div.innerHTML=subTaskJson.title;
+								td.appendChild(div);
+								
+								var div	=	document.createElement("div");
+								div.setAttribute("class","information");
+								
+								if(subTaskJson.startdate){
+										var taskInfoWrap	=	document.createElement("div");
+										taskInfoWrap.setAttribute("class","taskInfoWrap");
+										
+											var note	=	document.createElement("div");
+											note.setAttribute("class","note");
+											note.innerHTML="Start";
+											taskInfoWrap.appendChild(note);
+											
+											var info	=	document.createElement("div");
+											info.setAttribute("class","info");
+											info.innerHTML=datetimeToDate(subTaskJson.startdate);
+											taskInfoWrap.appendChild(info);
+									div.appendChild(taskInfoWrap);
+								}
+								
+								if(subTaskJson.deadline){
+										var taskInfoWrap	=	document.createElement("div");
+										taskInfoWrap.setAttribute("class","taskInfoWrap");
+										
+											var note	=	document.createElement("div");
+											note.setAttribute("class","note");
+											note.innerHTML="End";
+											taskInfoWrap.appendChild(note);
+											
+											var info	=	document.createElement("div");
+											if(Number(subTaskJson.usetaskdeadline)==1){
+												if(Number(taskJson.useprojectdeadline)==1){
+													info.innerHTML=datetimeToDate(project.deadline);
+												}else{
+													info.innerHTML=datetimeToDate(taskJson.deadline);
+												}
+											}else{
+												info.innerHTML=datetimeToDate(subTaskJson.deadline);
+											}
+											
+											
+											taskInfoWrap.appendChild(info);
+									div.appendChild(taskInfoWrap);
+								}
+								
+								if(subTaskJson.budgetedhours){
+										var taskInfoWrap	=	document.createElement("div");
+										taskInfoWrap.setAttribute("class","taskInfoWrap");
+										
+											var note	=	document.createElement("div");
+											note.setAttribute("class","note");
+											note.innerHTML="Hour Budget";
+											taskInfoWrap.appendChild(note);
+											
+											var info	=	document.createElement("div");
+											info.setAttribute("class","info");
+											info.innerHTML=subTaskJson.budgetedhours;
+											taskInfoWrap.appendChild(info);
+									div.appendChild(taskInfoWrap);
+								}
+								
+									var taskInfoWrap	=	document.createElement("div");
+									taskInfoWrap.setAttribute("class","taskInfoWrap");
+									
+										var note	=	document.createElement("div");
+										note.setAttribute("class","note");
+										note.innerHTML="Spent Hours";
+										taskInfoWrap.appendChild(note);
+										
+										var info	=	document.createElement("div");
+										info.setAttribute("class","info");
+										info.innerHTML=roundedHours(subTaskJson.spenthours);
+										taskInfoWrap.appendChild(info);
+								div.appendChild(taskInfoWrap);
+							
+							td.appendChild(div);
+						
+						tr.appendChild(td);
+						
+						for(var k=0;k<7;k++){
+							var td		=	document.createElement("td");
+							var input	=	document.createElement("input");
+							input.setAttribute("class","hourInput");
+							if(user!=infoForPage.user){
+								if(getUserRole(infoForPage.user)>10){
+									input.disabled	=	true;
+								}else{
+									input.disabled	=	false;
+								}
+							}
+							input.setAttribute("type","number");
+							input.setAttribute("data-projectcode",projectJson.code);
+							input.setAttribute("data-task",taskJson.title);
+							input.setAttribute("data-subtask",subTaskJson.title);
+							input.setAttribute("data-datetime",monday.getTime()+k*8.64e+7);
+							td.appendChild(input);
+							
+							var div		=	document.createElement("DIV");
+							div.setAttribute("class","commentWrap");
+							
+								var comment			=	document.createElement("DIV");
+								comment.setAttribute("class","whiteButton");
+								comment.setAttribute("onclick","showComment(this)");
+								comment.innerHTML	=	"Comment";
+								
+								div.appendChild(comment);
+								
+								var comment			=	document.createElement("textarea");
+								comment.setAttribute("class","commentInput");
+								comment.setAttribute("style","display:none;")
+								comment.setAttribute("oninput","comment(this)");
+								comment.setAttribute("data-projectcode",projectJson.code);
+								comment.setAttribute("data-task",taskJson.title);
+								comment.setAttribute("data-subtask",subTaskJson.title);
+								comment.setAttribute("data-datetime",monday.getTime()+k*8.64e+7);
+								div.appendChild(comment);
+							
+							td.appendChild(div);
+							
+							tr.appendChild(td);
+						}
+						
+						table.appendChild(tr);
+					}
+				}else{
+					var tr	=	document.createElement("tr");
+					tr.setAttribute("class","task");
+					
+						var td	=	document.createElement("td");
+						
+							var div			=	document.createElement("div");
+							div.setAttribute("class","name");
+							div.innerHTML	=	taskJson.title;
+							td.appendChild(div);
+							
+							var div			=	document.createElement("div");
+							div.setAttribute("class","information");
+							
+							if(taskJson.startdate){
+									var taskInfoWrap	=	document.createElement("div");
+									taskInfoWrap.setAttribute("class","taskInfoWrap");
+									
+										var note			=	document.createElement("div");
+										note.setAttribute("class","note");
+										note.innerHTML		=	"Start";
+										taskInfoWrap.appendChild(note);
+										
+										var info			=	document.createElement("div");
+										info.setAttribute("class","info");
+										info.innerHTML		=	datetimeToDate(taskJson.startdate);
+										taskInfoWrap.appendChild(info);
+								div.appendChild(taskInfoWrap);
+							}
+							
+							if(taskJson.deadline){
+									var taskInfoWrap	=	document.createElement("div");
+									taskInfoWrap.setAttribute("class","taskInfoWrap");
+									
+										var note			=	document.createElement("div");
+										note.setAttribute("class","note");
+										note.innerHTML		=	"End";
+										taskInfoWrap.appendChild(note);
+										
+										var info			=	document.createElement("div");
+										info.setAttribute("class","info");
+										info.innerHTML		=	datetimeToDate(taskJson.deadline);
+										
+										taskInfoWrap.appendChild(info);
+								div.appendChild(taskInfoWrap);
+							}
+							
+							if(taskJson.budgetedhours){
+									var taskInfoWrap	=	document.createElement("div");
+									taskInfoWrap.setAttribute("class","taskInfoWrap");
+									
+										var note	=	document.createElement("div");
+										note.setAttribute("class","note");
+										note.innerHTML="Hour Budget";
+										taskInfoWrap.appendChild(note);
+										
+										var info	=	document.createElement("div");
+										info.setAttribute("class","info");
+										info.innerHTML=taskJson.budgetedhours;
+										taskInfoWrap.appendChild(info);
+								div.appendChild(taskInfoWrap);
+							}
+							
+								var taskInfoWrap	=	document.createElement("div");
+								taskInfoWrap.setAttribute("class","taskInfoWrap");
+								
+									var note	=	document.createElement("div");
+									note.setAttribute("class","note");
+									note.innerHTML="Spent Hours";
+									taskInfoWrap.appendChild(note);
+									
+									var info	=	document.createElement("div");
+									info.setAttribute("class","info");
+									info.innerHTML=roundedHours(taskJson.spenthours);
+									taskInfoWrap.appendChild(info);
+							div.appendChild(taskInfoWrap);
+						
+						td.appendChild(div);
+					
+					tr.appendChild(td);
+					
+					for(var j=0;j<7;j++){
+						var td	=	document.createElement("td");
+						var input	=	document.createElement("input");
+						input.setAttribute("class","hourInput");
+						if(user!=infoForPage.user){
+							if(getUserRole(infoForPage.user)>10){
+								input.disabled=true;
+							}else{
+								input.disabled=false;
+							}
+						}
+						input.setAttribute("type","number");
+						input.setAttribute("data-projectcode",projectJson.code);
+						input.setAttribute("data-task",taskJson.title);
+						input.setAttribute("data-subtask","");
+						input.setAttribute("data-datetime",monday.getTime()+j*8.64e+7);
+						td.appendChild(input);
+						
+						var div	=	document.createElement("DIV");
+						div.setAttribute("class","commentWrap");
+						
+							var comment	=	document.createElement("DIV");
+							comment.setAttribute("class","whiteButton");
+							comment.setAttribute("onclick","showComment(this)");
+							comment.innerHTML="Comment";
+							
+							div.appendChild(comment);
+							
+							var comment	=	document.createElement("textarea");
+							comment.setAttribute("class","commentInput");
+							comment.setAttribute("style","display:none;")
+							comment.setAttribute("oninput","comment(this)");
+							comment.setAttribute("data-projectcode",projectJson.code);
+							comment.setAttribute("data-task",taskJson.title);
+							comment.setAttribute("data-subtask","");
+							comment.setAttribute("data-datetime",monday.getTime()+j*8.64e+7);
+							div.appendChild(comment);
+						
+						td.appendChild(div);
+						
+						tr.appendChild(td);
+					}
+					
+					table.appendChild(tr);
+				}
+			}
+			
+			document.getElementById("tasks").innerHTML="";
+			document.getElementById("tasks").appendChild(table);
+			
+			var inputs	=	document.getElementById("tasks").querySelectorAll(".hourInput");
+			for(var i=0;i<inputs.length;i++){
+				inputs[i].setAttribute("min",0);
+				inputs[i].setAttribute("max",24);
+				inputs[i].setAttribute("oninput","hourInput(this)");
+				inputs[i].addEventListener("keydown",function(e){
+					var elem	=	e.target;
+					if(e.keyCode==38){
+						//Pressed up
+						e.preventDefault();
+						var elemIndex	=	-1;
+						for(var i=0;i<document.getElementsByClassName("hourInput").length;i++){
+							if(document.getElementsByClassName("hourInput")[i]==elem){
+								elemIndex	=	i;
+								break;
+							}
+						}
+						if(elemIndex>=0){
+							if(document.getElementsByClassName("hourInput")[elemIndex-7]){
+								document.getElementsByClassName("hourInput")[elemIndex-7].focus();
+							}
+						}
+					}else if(e.keyCode==40){
+						//Pressed down
+						e.preventDefault();
+						var elemIndex	=	-1;
+						for(var i=0;i<document.getElementsByClassName("hourInput").length;i++){
+							if(document.getElementsByClassName("hourInput")[i]==elem){
+								elemIndex	=	i;
+								break;
+							}
+						}
+						if(elemIndex>=0){
+							if(document.getElementsByClassName("hourInput")[elemIndex+7]){
+								document.getElementsByClassName("hourInput")[elemIndex+7].focus();
+							}
+						}
+					}else if(e.keyCode==37){
+						//pressed left
+						e.preventDefault();
+						var elemIndex	=	-1;
+						for(var i=0;i<document.getElementsByClassName("hourInput").length;i++){
+							if(document.getElementsByClassName("hourInput")[i]==elem){
+								elemIndex	=	i;
+								break;
+							}
+						}
+						if(elemIndex>=0){
+							if(document.getElementsByClassName("hourInput")[elemIndex-1]){
+								document.getElementsByClassName("hourInput")[elemIndex-1].focus();
+							}
+						}
+					}else if(e.keyCode==39){
+						//pressed right
+						e.preventDefault();
+						var elemIndex	=	-1;
+						for(var i=0;i<document.getElementsByClassName("hourInput").length;i++){
+							if(document.getElementsByClassName("hourInput")[i]==elem){
+								elemIndex	=	i;
+								break;
+							}
+						}
+						if(elemIndex>=0){
+							if(document.getElementsByClassName("hourInput")[elemIndex+1]){
+								document.getElementsByClassName("hourInput")[elemIndex+1].focus();
+							}
+						}
+					}
+				});
+			}
+
+			//Highlight Today 
+			var rows	=	document.getElementsByClassName("taskTable")[0].querySelectorAll("TR");
+			for(var i=0;i<rows.length;i++){
+				rows[i].querySelectorAll("TD")[columnToHighlight+1].classList.add("today");
+			}
+		}
+
+		function fillinWeekHours(){
+			var hourInputs	=	document.getElementsByClassName("hourInput");
+			for(var i=0;i<hourInputs.length;i++){
+				var hourInput	=	hourInputs[i];
+				hourInput.value	=	"";
+				hourInput.classList.remove("hourInputFilled");
+				hourInput.classList.remove("hourInputFilledByAdmin");
+				hourInput.parentElement.querySelectorAll(".whiteButton")[0].classList.remove("commentFilled");
+				hourInput.parentElement.querySelectorAll(".commentInput")[0].value	=	"";
+
+				for(var j=0;j<hours.length;j++){
+					if(isSameDate(hourInput.dataset.datetime,hours[j].date)){
+						if(hourInput.dataset.projectcode==hours[j].pcode){
+							if(hourInput.dataset.task==hours[j].task && hourInput.dataset.subtask==hours[j].subtask && user==hours[j].engcode){
+								hourInput.value	=	Number(hours[j].hours);
+								hourInput.classList.add("hourInputFilled");
+								if(hours[j].sender!=hours[j].engcode){
+									hourInput.classList.add("hourInputFilledByAdmin");
+								}
+								if(hours[j].comment!=""){
+									hourInput.parentElement.querySelectorAll(".whiteButton")[0].classList.add("commentFilled");
+									hourInput.parentElement.querySelectorAll(".commentInput")[0].value	=	hours[j].comment;
+								}
+								//console.log(hours[j])
+								break;
+							}
+						}
+					}
+				}
+
+				var hourElems		=	document.getElementById("input-overview").querySelectorAll(".hourElem");
+				for(var j=0;j<hourElems.length;j++){
+					var hourJson	=	JSON.parse(hourElems[j].dataset.hourjson);
+					if(isSameDate(hourInput.dataset.datetime,hourJson.date)){
+						if(hourInput.dataset.projectcode==hourJson.pcode){
+							if(hourInput.dataset.task==hourJson.task && hourInput.dataset.subtask==hourJson.subtask && user==hourJson.engcode){
+								hourInput.value	=	Number(hourJson.hours);
+								hourInput.parentElement.querySelectorAll(".commentInput")[0].value	=	hourJson.comment;
+							}
+						}
+					}
+				}
+
+			}
+		}
+
+		function sumUpSubTasks(){
+			var rows	=	document.getElementById("tasks").querySelectorAll("TR");
+			for(var i=0;i<rows.length;i++){
+				if(Number(rows[i].dataset.hassubtasks)==1){
+					var sumElems	=	rows[i].querySelectorAll("TD");
+					for(var j=1;j<sumElems.length;j++){
+						var sum		=	0;
+						for(var k=0;k<rows.length;k++){
+							if(rows[k].classList.contains("subtask") && rows[k].dataset.task==rows[i].dataset.taskname){
+								sum	+=	Number(rows[k].querySelectorAll("TD")[j].querySelectorAll(".hourInput")[0].value);
+							}
+						}
+						sumElems[j].querySelectorAll(".hourInputTaskWithSubtasks")[0].innerHTML	=	sum;
+					}
+				}
+			}
+		}
+
+		function setDateOfPage(datetime){
+			var date	=	new Date(Number(datetime));
+			setDateOfInput(document.getElementById("date-input"),datetime)
+		}
+
+		function refresh(){
+			refreshProject();
+			fillinWeekHours();
+			sumUpSubTasks();
+		}
+
+		function findHours(engcode,date,projectcode){
+			pickedProject	=	projectcode;
+			setDateOfPage(date);
+			setUser(engcode);
+			refresh();
+		}
+
+		function showHours(elem){
+			var hourJson	=	JSON.parse(elem.dataset.hourjson);
+			findHours(hourJson.engcode,hourJson.date,hourJson.pcode);
+		}
+
+		var pickedProject	=	document.getElementById("projects").querySelectorAll(".whiteButton")[0].dataset.projectcode;
+		var user			=	infoForPage.user;
+		var currentDate		=	new Date();
+
+
+		if(urlObject.lastproject){
+			pickedProject	=	urlObject.lastproject;
+		}
+		
+		if(urlObject.eng){
+			user	=	urlObject.eng;
+		}
+
+		if(urlObject.date){
+			currentDate	=	urlObject.date;
+		}
+
+		findHours(user,currentDate,pickedProject);
+		
+	</script>
+<%- include ("partials/footer") -%>

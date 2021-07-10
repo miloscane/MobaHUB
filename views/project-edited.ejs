@@ -1,0 +1,154 @@
+<%- include ("partials/header2") -%>
+	<script>
+		var project	=	<%- JSON.stringify(project) %>;
+		console.log(project);
+	</script>
+	<div class="pageTitle">
+		Project successfully <span id="changed-editted"></span>
+		<script>
+			if(project.new){
+				document.getElementById("changed-editted").innerHTML="added.";
+			}else{
+				document.getElementById("changed-editted").innerHTML="editted.";
+			}
+		</script>
+	</div>
+	<div class="pageSubtitle"></div>
+	<table id="project-submission-table">
+		<tr>
+			<td>Company:</td>
+			<td><%= project.company %></td>
+		</tr>
+		<tr>
+			<td>Name:</td>
+			<td><%= project.dispname %></td>
+		</tr>
+		<tr>
+			<td>Team:</td>
+			<td id="team"></td>
+			<script>
+				var teamString	=	"";
+				for(i=0;i<project.team.length;i++){
+					teamString+=getUserNameFromCode(project.team[i])+", "
+				}
+				teamString	=	teamString.substring(0,teamString.length-2);
+				document.getElementById("team").innerHTML	=	teamString;
+			</script>
+		</tr>
+		<tr>
+			<td>Start:</td>
+			<td id="start"></td>
+			<script>
+				document.getElementById("start").innerHTML	=	datetimeToDate(project.startdate)
+			</script>
+		</tr>
+		<tr>
+			<td>Deadline:</td>
+			<td id="deadline"></td>
+			<script>
+				document.getElementById("deadline").innerHTML	=	datetimeToDate(project.deadline)
+			</script>
+		</tr>
+		<tr>
+			<td>Finished:</td>
+			<td id="finished"></td>
+			<script>
+				document.getElementById("finished").innerHTML	=	(project.finished==1) ? "Yes":"No";
+			</script>
+		</tr>
+		<tr>
+			<td>Finished Date:</td>
+			<td id="finished-date"></td>
+			<script>
+				document.getElementById("finished-date").innerHTML	=	datetimeToDate(project.finisheddate)
+			</script>
+		</tr>
+		<tr>
+			<td>Hidden:</td>
+			<td id="hidden"></td>
+			<script>
+				document.getElementById("hidden").innerHTML	=	(project.hidden==1) ? "Yes":"No";
+			</script>
+		</tr>
+		<tr>
+			<td>Budgeted hours:</td>
+			<td><%= project.budgetedhours %></td>
+		</tr>
+		<tr>
+			<td>Description:</td>
+			<td><%= project.description %></td>
+		</tr>
+		<tr>
+			<td>Extra Buttons:</td>
+			<td id="extra-buttons"></td>
+			<script>
+				var buttonString	=	"";
+				for(i=0;i<project.extrabuttons.length;i++){
+					buttonString	+=	project.extrabuttons[i].caption + "----" + project.extrabuttons[i].url + "<br>"
+				}
+				document.getElementById("extra-buttons").innerHTML	=	buttonString;
+			</script>
+		</tr>
+		<tr>
+			<td>Tasks:</td>
+			<td id="tasks"></td>
+			<script>
+				var taskHtml		=	"";
+				for(var i=0;i<project.tasks.length;i++){
+					taskHtml		+=	"<p><b>Name:</b>"+project.tasks[i].title+"</p>";
+					if(Number(project.tasks[i].useprojectdeadline)==1){
+						taskHtml		+=	"<p><b>Deadline:</b>"+datetimeToDate(project.deadline)+"</p>";
+					}else{
+						taskHtml		+=	"<p><b>Deadline:</b>"+datetimeToDate(project.tasks[i].deadline)+"</p>";
+					}
+					taskHtml		+=	"<p><b>Hour budget:</b>"+project.tasks[i].budgetedhours+"</p>";
+					var teamString	=	"";
+					for(var j=0;j<project.tasks[i].team.length;j++){
+						teamString	+=	getUserNameFromCode(project.tasks[i].team[j])+", "
+					}
+					teamString		=	teamString.substring(0,teamString.length-2);
+					taskHtml		+=	"<p><b>Team:</b>"+teamString+"</p>";
+					taskHtml		+=	"<p><b>Description:</b>"+project.tasks[i].description+"</p>";
+
+					var subTasksHtml	=	"<p style='padding-left:30px'>";
+					for(var j=0;j<project.tasks[i].subTasks.length;j++){
+						subTasksHtml		+=	"<p style='margin:5px auto'>*********</p>";
+						subTasksHtml		+=	"<p><b>Name:</b>"+project.tasks[i].subTasks[j].title+"</p>";
+						if(Number(project.tasks[i].subTasks[j].usetaskdeadline)==1){
+							if(Number(project.tasks[i].useprojectdeadline)==1){
+								subTasksHtml	+=	"<p><b>Deadline:</b>"+datetimeToDate(project.deadline)+"</p>";
+							}else{
+								subTasksHtml	+=	"<p><b>Deadline:</b>"+datetimeToDate(project.tasks[i].deadline)+"</p>";
+							}
+						}else{
+							subTasksHtml		+=	"<p><b>Deadline:</b>"+datetimeToDate(project.tasks[i].subTasks[j].deadline)+"</p>";
+						}
+						subTasksHtml		+=	"<p><b>Hour budget:</b>"+project.tasks[i].subTasks[j].budgetedhours+"</p>";
+
+						var teamString	=	"";
+						for(var k=0;k<project.tasks[i].subTasks[j].team.length;k++){
+							teamString	+=	getUserNameFromCode(project.tasks[i].subTasks[j].team[k])+", "
+						}
+						teamString		=	teamString.substring(0,teamString.length-2);
+						subTasksHtml		+=	"<p><b>Team:</b>"+teamString+"</p>";
+
+						subTasksHtml		+=	"<p><b>Description:</b>"+project.tasks[i].subTasks[j].description+"</p>";
+
+					}
+					subTasksHtml			+=	"</p>"
+					taskHtml		+=	subTasksHtml;
+
+					taskHtml		+=	"<p style='margin:10px auto;'>----------------------------------------------------------------------------</p>";
+					document.getElementById("tasks").innerHTML	=	taskHtml;
+
+				}
+			</script>
+		</tr>
+	</table>
+	<script>
+		function pickProject(projectCode,button){
+			button.classList.add("whiteButtonActive");
+			window.location.href="/project-view/"+projectCode;
+		}
+	</script>
+<%- include ("partials/footer") -%>

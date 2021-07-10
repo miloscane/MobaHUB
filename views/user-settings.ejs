@@ -1,0 +1,308 @@
+<%- include ("partials/header2") -%>
+	<style>
+		#projects{display: none !important;}
+		#container2{padding-left:0px !important;}
+		#project-opener{display: none !important;}
+	</style>
+	<div class="pageTitle">User Settings</div>
+	<div class="userSettingsWrap">
+		<div class="userSettingWrap">
+			<div class="title" onclick="openSetting(this)" data-closed="1">Projects Sorting <span>&#9660;</span></div>
+			<div class="wrapper">
+				<div class="sortWrap" data-sorting="1">
+					<div class="sortingTitle" onclick="pickSorting(this)">
+						<div class="inline">
+							<input type="radio">
+						</div>
+						<div class="inline text">
+							Default Sorting
+						</div>
+					</div>
+					<div class="sortingInfoWrap">
+						<div class="note">
+							*Projects are sorted into categories of Running/Finished/Other/Hidden by Company name
+						</div>
+					</div>
+				</div>
+				<div class="sortWrap" data-sorting="2">
+					<div class="sortingTitle" onclick="pickSorting(this)">
+						<div class="inline">
+							<input type="radio">
+						</div>
+						<div class="inline text">
+							Custom Sorting
+						</div>
+					</div>
+					<div class="note">
+						*If there are no projects under a group the group it will not be seen in project menu.<br>
+						*If you create a group and call it Hidden the projects in that group will not be visible
+					</div>
+					<div id="project-custom-sort"></div>
+					<div class="whiteButton" onclick="addProjectSortGroup()">Add group</div>
+				</div>
+			</div>
+		</div>
+		<div class="userSettingWrap">
+			<div class="title" onclick="openSetting(this)" data-closed="1">Logged Devices <span>&#9660;</span></div>
+			<div class="wrapper">
+				<div id="device-list"></div>
+			</div>
+		</div>
+		<div class="userSettingWrap">
+			<div class="title" onclick="openSetting(this)" data-closed="1">Handheld device view<span>&#9660;</span></div>
+			<div class="wrapper">
+				<div class="itemWrap">
+					<div class="noteWrap">
+						Default Hide project menu on handheld devices?
+					</div>
+					<div class="inputWrap">
+						<input type="checkbox" id="hideProjectMenu">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="saveChangesWrap">
+			<div class="blueButton" onclick="saveChanges()">Save Changes</div>
+		</div>
+		<form style="display:none" method="post" id="post-settings-form" action="/user-settings">
+			<input type="text" name="settings" id="settings-to-post">
+		</form>
+	</div>
+	<script>
+		function pickSorting(elem){
+			var allRadios	=	elem.parentElement.parentElement.querySelectorAll("input[type='radio']");
+			for(var i=0;i<allRadios.length;i++){
+				allRadios[i].checked	=	false;
+				allRadios[i].disabled	=	true;
+				allRadios[i].parentElement.parentElement.parentElement.classList.add("sortingInactive");
+			}
+			elem.querySelectorAll("input[type='radio']")[0].checked		=	true;
+			elem.querySelectorAll("input[type='radio']")[0].disabled	=	false;
+			elem.parentElement.classList.remove("sortingInactive");
+		}
+
+		function addProjectSortGroup(){
+			var groupTitle			=	document.createElement("INPUT");
+			groupTitle.value		=	"New Group";
+			groupTitle.setAttribute("class","sortGroupTitle");
+			groupTitle.setAttribute("type","text");
+			document.getElementById("project-custom-sort").appendChild(groupTitle);
+
+			var sortList			=	document.createElement("UL");
+			sortList.setAttribute("class","projectSortList");
+
+			document.getElementById("project-custom-sort").appendChild(sortList);
+			var sortable = new Sortable(sortList, {
+				animation: 150,
+				group: "shared"
+			});
+		}
+
+		function openSetting(elem){
+			if(Number(elem.dataset.closed)==1){
+				//Open
+				elem.parentElement.querySelectorAll(".wrapper")[0].style.display	=	"block";
+				elem.querySelectorAll("span")[0].innerHTML	=	"&#9650;";
+				elem.dataset.closed		=	0;
+			}else if(Number(elem.dataset.closed)==0){
+				//Close
+				elem.parentElement.querySelectorAll(".wrapper")[0].style.display	=	"none";
+				elem.querySelectorAll("span")[0].innerHTML	=	"&#9660;";
+				elem.dataset.closed		=	1;
+			}
+		}
+
+
+		//MENU_SORT
+		if(infoForPage.settings.menuSort){
+			for(var i=0;i<document.getElementsByClassName("sortWrap").length;i++){
+				if(Number(document.getElementsByClassName("sortWrap")[i].dataset.sorting)==Number(infoForPage.settings.menuSort)){
+					pickSorting(document.getElementsByClassName("sortWrap")[i].querySelectorAll(".sortingTitle")[0]);
+					break;
+				}
+			}
+		}else{
+			pickSorting(document.getElementsByClassName("sortWrap")[0].querySelectorAll(".sortingTitle")[0]);
+		}
+		var unsortedProjects	=	[];
+		var sortedProjects		=	[];
+		for(var i=0;i<infoForPage.settings.customprojectsort.length;i++){
+			for(var j=0;j<infoForPage.settings.customprojectsort[i].projects.length;j++){
+				sortedProjects.push(infoForPage.settings.customprojectsort[i].projects[j]);
+			}
+		}
+
+		for(var i=0;i<infoForPage.projects.length;i++){
+			if(sortedProjects.indexOf(infoForPage.projects[i].code)<0){
+				unsortedProjects.push(infoForPage.projects[i].code)
+			}
+		}
+		if(unsortedProjects.length>0){
+			var unsortedTitle			=	document.createElement("DIV");
+			unsortedTitle.innerHTML		=	"Unsorted Projects<br><p class='note'>*These appear under \"Future Projects\"</p>";
+			unsortedTitle.setAttribute("class","unsortedTitle");
+			document.getElementById("project-custom-sort").appendChild(unsortedTitle);
+
+			var sortList	=	document.createElement("UL");
+			sortList.setAttribute("class","unsortedProjectList");
+			for(var i=0;i<unsortedProjects.length;i++){
+				var li 			=	document.createElement("LI");
+				li.innerHTML	=	fullProjectNameFromCode(unsortedProjects[i]);
+				li.setAttribute("data-pcode",unsortedProjects[i]);
+				sortList.appendChild(li);
+			}
+			document.getElementById("project-custom-sort").appendChild(sortList);
+			var sortable = new Sortable(sortList, {
+				animation: 150,
+				group: "shared"
+			})
+		}
+
+		if(infoForPage.settings.customprojectsort){
+			for(var i=0;i<infoForPage.settings.customprojectsort.length;i++){
+				var groupTitle			=	document.createElement("INPUT");
+				groupTitle.value		=	infoForPage.settings.customprojectsort[i].name;
+				groupTitle.setAttribute("class","sortGroupTitle");
+				groupTitle.setAttribute("type","text");
+				document.getElementById("project-custom-sort").appendChild(groupTitle);
+
+				var sortList			=	document.createElement("UL");
+				sortList.setAttribute("class","projectSortList");
+
+				for(var j=0;j<infoForPage.settings.customprojectsort[i].projects.length;j++){
+					var li 			=	document.createElement("LI");
+					li.innerHTML	=	(infoForPage.settings.customprojectsort[i].projects[j]=="new") ? "Future projects" : fullProjectNameFromCode(infoForPage.settings.customprojectsort[i].projects[j]);
+					li.setAttribute("data-pcode",infoForPage.settings.customprojectsort[i].projects[j]);
+					sortList.appendChild(li);
+				}
+
+				document.getElementById("project-custom-sort").appendChild(sortList);
+				var sortable = new Sortable(sortList, {
+					animation: 150,
+					group: "shared"
+				})
+			}
+		}else{
+			var groupTitle			=	document.createElement("INPUT");
+			groupTitle.value		=	"Projects";
+			groupTitle.setAttribute("class","sortGroupTitle");
+			groupTitle.setAttribute("type","text");
+			document.getElementById("project-custom-sort").appendChild(groupTitle);
+
+			var sortList			=	document.createElement("UL");
+			sortList.setAttribute("class","projectSortList");
+
+			for(var i=0;i<infoForPage.projects.length;i++){
+				var li 			=	document.createElement("LI");
+				li.innerHTML	=	fullProjectNameFromCode(infoForPage.projects[i].code);
+				li.setAttribute("data-pcode",infoForPage.projects[i].code);
+				sortList.appendChild(li)
+			}
+			var li 			=	document.createElement("LI");
+			li.innerHTML	=	"Future Projects";
+			li.setAttribute("data-pcode","new");
+			sortList.appendChild(li);
+
+			document.getElementById("project-custom-sort").appendChild(sortList);
+			var sortable = new Sortable(sortList, {
+				animation: 150,
+				group: "shared"
+			})
+
+		}
+
+
+		//DEVICES
+		if(infoForPage.devices.length>0){
+			for(var i=0;i<infoForPage.devices.length;i++){
+				var deviceWrap	=	document.createElement("DIV");
+				deviceWrap.setAttribute("class","deviceWrap");
+
+					var deviceName			=	document.createElement("div");
+					deviceName.innerHTML	=	infoForPage.devices[i].name;
+					deviceName.setAttribute("class","inline deviceName");
+					deviceWrap.appendChild(deviceName);
+
+					var div		=	document.createElement("DIV");
+					div.setAttribute("class","inline deviceDelete");
+
+						var div2		=	document.createElement("DIV");
+						div2.innerHTML	=	"Logout?";
+						div.appendChild(div2);
+
+						var input		=	document.createElement("INPUT");
+						input.setAttribute("type","checkbox");
+						input.setAttribute("data-deviceid",infoForPage.devices[i].id);
+						div.appendChild(input);
+
+					deviceWrap.appendChild(div);
+
+				document.getElementById("device-list").appendChild(deviceWrap);
+			}	
+		}else{
+			var div			=	document.createElement("DIV");
+			div.innerHTML	=	"*You are not logged on any device.";
+			div.setAttribute("class","noSetting");
+			document.getElementById("device-list").appendChild(div);
+		}
+
+
+
+
+		if(infoForPage.settings.hideprojectmenu){
+			document.getElementById("hideProjectMenu").checked	=	true;
+		}
+		
+
+
+
+
+
+
+
+		function saveChanges(){
+			var settings	=	{};
+			//settings.menuSort
+			var sortElements	=	document.getElementsByClassName("sortWrap");
+			for(var i=0;i<sortElements.length;i++){
+				if(sortElements[i].querySelectorAll("input")[0].checked){
+					settings.menuSort	=	Number(sortElements[i].dataset.sorting);
+					break;
+				}
+			}
+
+			//settings.customprojectsort
+			settings.customprojectsort	=	[];
+			var groupTitles	=	document.getElementById("project-custom-sort").getElementsByClassName("sortGroupTitle");
+			for(var i=0;i<groupTitles.length;i++){
+				var projects 	=	document.getElementById("project-custom-sort").getElementsByClassName("projectSortList")[i].querySelectorAll("LI");
+				if(projects.length>0){
+					var	obj			=	{};
+					obj.name		=	groupTitles[i].value;
+					obj.projects 	=	[];
+					for(var j=0;j<projects.length;j++){
+						obj.projects.push(projects[j].dataset.pcode)
+					}
+					settings.customprojectsort.push(obj);
+				}
+			}
+
+			//settings.devices
+			settings.devices	=	[];
+			var devices			=	document.getElementsByClassName("deviceDelete");
+			for(var i=0;i<devices.length;i++){
+				if(devices[i].querySelectorAll("input")[0].checked){
+					settings.devices.push(devices[i].querySelectorAll("input")[0].dataset.deviceid.toString());
+				}
+			}
+
+			//Settings hide project menu
+			settings.hideprojectmenu	=	document.getElementById("hideProjectMenu").checked;
+
+			console.log(settings);
+
+			document.getElementById("settings-to-post").value	=	JSON.stringify(settings);
+			document.getElementById("post-settings-form").submit();
+		}
+	</script>
+<%- include ("partials/footer") -%>

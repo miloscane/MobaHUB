@@ -1,0 +1,42 @@
+		</div><!--id="container"-->
+		<div id="lightbox" onclick="closeLightbox()">
+			<div id="lightbox-content" onclick="event.stopPropagation()">
+				<div id="lightbox-toolbar">
+					<div id="lightbox-close" onclick="closeLightbox()"><img src="/icons/lightbox-close.png"></div>
+				</div>
+				<div id="lightbox-info"></div>
+				<div id="lightbox-buttons"></div>
+			</div>
+		</div>
+		<div id="tooltip"></div>
+		<script>
+			//Top menu button light up
+			if(document.getElementsByClassName("pageTitle")[0] && document.getElementById("top-menu")){
+				var pageTitle	=	document.getElementsByClassName("pageTitle")[0].innerHTML;
+				var menuItems	=	document.getElementById("top-menu").querySelectorAll(".menu-item");
+				for(var i=0;i<menuItems.length;i++){
+					if(menuItems[i].innerHTML==pageTitle){
+						menuItems[i].classList.add("whiteButtonActive");
+						break;
+					}
+				}
+			}
+		</script>
+			<% if (typeof infoForPage!="undefined") { %>
+				<% if (infoForPage.user) { %>
+				<script>
+					if(document.getElementsByClassName("pageTitle")[0].innerHTML!="All Projects"){
+						if(viewportWidth<900 || typeof Android!="undefined"){
+							if(infoForPage.settings.hideprojectmenu){
+								collapseProjects(true)
+							}
+						}
+					}
+					
+				</script>
+				<% } %>
+			<% } %>
+			
+		</script>
+	</body>
+</html>

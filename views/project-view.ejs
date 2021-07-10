@@ -1,0 +1,587 @@
+<%- include ("partials/header2") -%>
+	<script>
+		var projectHours	=	<%- JSON.stringify(projectHours) %>;
+		console.log(projectHours);
+		var projectCode		=	<%- JSON.stringify(projectCode) %>;
+		for(var i=0;i<infoForPage.projects.length;i++){
+			if(infoForPage.projects[i].code==projectCode){
+				var projectInfo	=	JSON.parse(JSON.stringify(infoForPage.projects[i]));
+			}
+		}
+		//var defaultSort		=	JSON.parse(JSON.stringify(projectHours)); // was backup of initial sort
+		projectHours.sort(function(a,b){ return a.date - b.date; } );
+		var dateOrder	=	1;//Old dates come first
+		var engOrder	=	-1;//No engineer sort
+		
+		
+		var spentHours	=	0;
+		for(var i=0;i<projectHours.length;i++){
+			spentHours+=Number(projectHours[i].hours);
+		}
+		projectInfo.spenthours	=	spentHours;
+		
+		//Engineers in project
+		var engineers	=	JSON.parse(JSON.stringify(projectInfo.team));
+		for(var i=0;i<projectHours.length;i++){
+			if(engineers.indexOf(projectHours[i].engcode)<0){
+				engineers.push(projectHours[i].engcode);
+			}
+		}
+		for(var i=0;i<engineers.length;i++){
+			engineers[i]	=	{"engcode":engineers[i],"hours":0}
+		}
+		
+		for(var i=0;i<projectInfo.tasks.length;i++){
+			var taskTitle	=	projectInfo.tasks[i].title;
+			var taskHours	=	0;
+			projectInfo.tasks[i].enghours	=	JSON.parse(JSON.stringify(engineers));
+			for(var j=0;j<projectHours.length;j++){
+					if(projectHours[j].task==taskTitle){
+						taskHours+=Number(projectHours[j].hours);
+
+						for(var l=0;l<projectInfo.tasks[i].enghours.length;l++){
+							if(projectHours[j].engcode==projectInfo.tasks[i].enghours[l].engcode){
+								projectInfo.tasks[i].enghours[l].hours+=Number(projectHours[j].hours);
+								break;
+							}
+						}
+					}
+			}
+			projectInfo.tasks[i].spenthours = taskHours;
+			
+			if(projectInfo.tasks[i].subTasks){
+				for(var j=0;j<projectInfo.tasks[i].subTasks.length;j++){
+					var subTaskTitle	=	projectInfo.tasks[i].subTasks[j].title;
+					var subTaskHours	=	0;
+					projectInfo.tasks[i].subTasks[j].enghours	=	JSON.parse(JSON.stringify(engineers));
+					for(var k=0;k<projectHours.length;k++){
+							if(projectHours[k].task==taskTitle && projectHours[k].subtask==subTaskTitle){
+								subTaskHours+=Number(projectHours[k].hours);
+								for(m=0;m<projectInfo.tasks[i].subTasks[j].enghours.length;m++){
+									if(projectHours[k].engcode==projectInfo.tasks[i].subTasks[j].enghours[m].engcode){
+										projectInfo.tasks[i].subTasks[j].enghours[m].hours+=Number(projectHours[k].hours);
+										break;
+									}
+								}
+							}
+					}
+					projectInfo.tasks[i].subTasks[j].spenthours=subTaskHours;
+				}
+			}
+		}
+		console.log(projectInfo);
+		
+		for(var i=0;i<document.getElementById("projects").getElementsByClassName("whiteButton").length;i++){
+			if(projectInfo.code==document.getElementById("projects").getElementsByClassName("whiteButton")[i].dataset.projectcode){
+				document.getElementById("projects").getElementsByClassName("whiteButton")[i].classList.add("whiteButtonActive")
+			}
+		}
+	</script>
+	<div class="pageTitle">Project View</div>
+	<div class="pageSubtitle"></div>
+	<div class="projectMainWrap">
+		<div class="projectTopWrap">
+			<div class="projectStart projectItem">
+				<b>Start:</b><br>
+				<span id="projectstart"></span>
+				<script>document.getElementById("projectstart").innerHTML=datetimeToDate(projectInfo.startdate)</script>
+			</div>
+			<div class="projectEnd projectItem">
+				<b>End:</b><br>
+				<span id="projectend"></span>
+				<script>document.getElementById("projectend").innerHTML=datetimeToDate(projectInfo.deadline)</script>
+			</div>
+			<div class="projectToday projectItem">
+				<b>Today:</b><br>
+				<span id="projecttoday"></span>
+				<script>document.getElementById("projecttoday").innerHTML=datetimeToDate(new Date().getTime())</script>
+			</div>
+			<div class="projectBudget projectItem">
+				<b>Budgeted Hours:</b><br>
+				<span id="projectbudget"></span>
+				<script>
+					
+					document.getElementById("projectbudget").innerHTML=projectInfo.budgetedhours ? projectInfo.budgetedhours : "0";
+				</script>
+			</div>
+			<div class="projectSpent projectItem">
+				<b>Total Spent Hours:</b><br>
+				<span id="projectspent"></span>
+				<script>
+					document.getElementById("projectspent").innerHTML=roundedHours(projectInfo.spenthours);
+				</script>
+			</div>
+		</div>
+	</div>
+	<div class="projectTasksWrap">
+		
+	</div>
+	<div class="tableFilters">
+		<div class="filterWrap">
+		</div>
+		<script>
+			generateCheckboxList(document.getElementsByClassName("filterWrap")[0],"class:filter",[{"name":"Display Task names","value":"task","default":"1"}],"tableDisplay(this)",true);
+			generateCheckboxList(document.getElementsByClassName("filterWrap")[0],"class:filter",[{"name":"Display SubTask names","value":"subtask","default":"1"}],"tableDisplay(this)",true);
+		</script>
+	</div>
+	<div class="projectTable"></div>
+	<script>
+		for(var i=0;i<projectInfo.tasks.length;i++){
+			var task	=	JSON.parse(JSON.stringify(projectInfo.tasks[i]));
+			var taskWrap	=	document.createElement("DIV");
+			taskWrap.setAttribute("class","taskWrap");
+			
+				var taskInfoWrap	=	document.createElement("DIV");
+				taskInfoWrap.setAttribute("class","taskInfoWrap");
+				
+					var taskName	=	document.createElement("DIV");
+					taskName.setAttribute("class","taskName taskItem");
+					taskName.innerHTML="<b>Task:</b><br>"+task.title;
+					taskInfoWrap.appendChild(taskName);
+					
+					var taskBudget	=	document.createElement("DIV");
+					taskBudget.setAttribute("class","taskBudget taskItem");
+					taskBudget.innerHTML= task.budgetedhours ? "<b>Budget:</b><br>"+task.budgetedhours : "<b>Budget:</b><br>0";
+					taskInfoWrap.appendChild(taskBudget);
+					
+					var taskSpent	=	document.createElement("DIV");
+					taskSpent.setAttribute("class","taskSpent taskItem");
+					taskSpent.innerHTML="<b>Spent:</b><br>"+roundedHours(task.spenthours);
+					taskInfoWrap.appendChild(taskSpent);
+					
+					for(var j=0;j<task.enghours.length;j++){
+						if(task.enghours[j].hours>0){
+							var engSpent	=	document.createElement("DIV");
+							engSpent.setAttribute("class","engSpent taskItem");
+							engSpent.innerHTML="<b>"+getUserAbrvFromCode(task.enghours[j].engcode)+"</b><br>"+roundedHours(task.enghours[j].hours);
+							taskInfoWrap.appendChild(engSpent);
+						}
+					}
+					
+				taskWrap.appendChild(taskInfoWrap);
+				
+				var subTasksWrap	=	document.createElement("DIV");
+				subTasksWrap.setAttribute("class","subTasksWrap");
+					
+					if(task.subTasks.length>0){
+						var title	=	document.createElement("DIV");
+						title.innerHTML="<b>SubTasks:</b>"
+						subTasksWrap.appendChild(title);
+					}
+					
+					for(var j=0;j<task.subTasks.length;j++){
+						var subTask	=	JSON.parse(JSON.stringify(task.subTasks[j]));
+						
+						var subTaskWrap	=	document.createElement("DIV");
+						subTaskWrap.setAttribute("class","subTaskWrap");
+						
+							var subTaskName	=	document.createElement("DIV");
+							subTaskName.setAttribute("class","subTaskName subTaskItem");
+							subTaskName.innerHTML=subTask.title;
+							subTaskWrap.appendChild(subTaskName);
+							
+							var subTaskBudget	=	document.createElement("DIV");
+							subTaskBudget.setAttribute("class","subTaskBudget subTaskItem");
+							subTaskBudget.innerHTML=subTask.budgetedhours ? "<b>Budget:</b><br>"+subTask.budgetedhours : "<b>Budget:</b><br>0";
+							subTaskWrap.appendChild(subTaskBudget);
+						
+							var subTaskSpent	=	document.createElement("DIV");
+							subTaskSpent.setAttribute("class","subTaskSpent subTaskItem");
+							subTaskSpent.innerHTML="<b>Spent:</b><br>"+roundedHours(subTask.spenthours);
+							subTaskWrap.appendChild(subTaskSpent);
+							
+							for(var k=0;k<subTask.enghours.length;k++){
+								if(subTask.enghours[k].hours>0){
+									var engSpent	=	document.createElement("DIV");
+									engSpent.setAttribute("class","engSpent subTaskItem");
+									engSpent.innerHTML="<b>"+getUserAbrvFromCode(subTask.enghours[k].engcode)+"</b><br>"+roundedHours(subTask.enghours[k].hours);
+									subTaskWrap.appendChild(engSpent);
+								}
+							}
+						
+						subTasksWrap.appendChild(subTaskWrap)
+					}
+					
+				taskWrap.appendChild(subTasksWrap);
+			
+			document.getElementsByClassName("projectTasksWrap")[0].appendChild(taskWrap)
+		}
+		
+		function makeTable(){
+			document.getElementsByClassName("projectTable")[0].innerHTML="";
+			
+			var sortTable	=	document.createElement("TABLE");
+			sortTable.setAttribute("class","sortTable");
+				var tr	=	document.createElement("TR");
+					var td	=	document.createElement("TD");
+						var div	=	document.createElement("DIV");
+						div.setAttribute("class",(dateOrder==0)?"tableFilter tableFilterActive":"tableFilter");
+						div.setAttribute("style","text-align:right");
+						div.setAttribute("id","date-down");
+						div.setAttribute("onclick","orderByDate(0)");//descending (new dates first)
+						div.innerHTML="&#8595";
+						td.appendChild(div);
+						
+						var div	=	document.createElement("DIV");
+						div.setAttribute("class",(dateOrder==1)?"tableFilter tableFilterActive":"tableFilter");
+						div.setAttribute("style","text-align:left");
+						div.setAttribute("onclick","orderByDate(1)");//descending (old dates first)
+						div.innerHTML="&#8593";
+						td.appendChild(div);
+					tr.appendChild(td);
+					
+					var td	=	document.createElement("TD");
+					tr.appendChild(td);
+					
+					var td	=	document.createElement("TD");
+						var div	=	document.createElement("DIV");
+						div.setAttribute("class",(engOrder==0)?"tableFilter tableFilterActive":"tableFilter");
+						div.setAttribute("style","text-align:right");
+						div.setAttribute("onclick","orderByEng(0)");//alphabetic
+						div.innerHTML="&#8595";
+						td.appendChild(div);
+						
+						var div	=	document.createElement("DIV");
+						div.setAttribute("class",(engOrder==1)?"tableFilter tableFilterActive":"tableFilter");
+						div.setAttribute("style","text-align:left");
+						div.setAttribute("onclick","orderByEng(1)");//reverse alphabetic
+						div.innerHTML="&#8593";
+						td.appendChild(div);
+					tr.appendChild(td);
+					
+					var td	=	document.createElement("TD");
+					tr.appendChild(td);
+					
+				sortTable.appendChild(tr);
+			document.getElementsByClassName("projectTable")[0].appendChild(sortTable);
+			
+			
+			var projectTable	=	document.createElement("TABLE");
+			projectTable.setAttribute("class","projectExportTable");
+			
+			var tr	=	document.createElement("TR");
+				var th	=	document.createElement("TH");
+				th.innerHTML="Date";
+				tr.appendChild(th);
+				
+				var th	=	document.createElement("TH");
+				th.innerHTML="Hours";
+				tr.appendChild(th);
+				
+				var th	=	document.createElement("TH");
+				th.innerHTML="Engineer";
+				tr.appendChild(th);
+				
+				var th	=	document.createElement("TH");
+				th.innerHTML="Comment";
+				tr.appendChild(th);
+			projectTable.appendChild(tr);
+			
+			for(var i=0;i<projectInfo.tasks.length;i++){
+				var task	=	projectInfo.tasks[i];
+				
+				//Create name td
+				var tr		=	document.createElement("TR");
+				tr.setAttribute("class","taskName");
+				tr.setAttribute("data-task",task.title);
+				//tr.setAttribute("data-subtask",subTask.title);
+					var td			=	document.createElement("TD");
+					td.innerHTML	=	"[<span class='taskSum'></span>] " + task.title;
+					td.setAttribute("colspan",4);
+					tr.appendChild(td);
+				projectTable.appendChild(tr);
+				
+				if(task.subTasks.length>0){
+					/*var tr	=	document.createElement("TR");
+					tr.setAttribute("class","taskRow");
+					tr.setAttribute("data-task",task.title);
+						var td	=	document.createElement("TD");
+						td.setAttribute("colspan",2);
+						td.setAttribute("style","text-align:right;font-weight:bold;background-color:rgb(37,78,118,0.3)");
+						td.setAttribute("class","summationCell");
+						td.setAttribute("data-task",task.title);
+						td.setAttribute("data-hassubtasks",true);
+						//td.setAttribute("data-subtask",subTask.title);
+						td.innerHTML="0";
+						tr.appendChild(td);
+					projectTable.appendChild(tr);*/
+					
+					for(var j=0;j<task.subTasks.length;j++){
+						var subTask	=	task.subTasks[j];
+						//Create name td
+						var tr		=	document.createElement("TR");
+						tr.setAttribute("class","subTaskName");
+						tr.setAttribute("data-task",task.title);
+						tr.setAttribute("data-subtask",subTask.title);
+							var td			=	document.createElement("TD");
+							//td.innerHTML="<sup>"+task.title+"</sup> "+subTask.title;
+							td.innerHTML	=	"[<span class='subTaskSum'></span>](<i>"+task.title+"</i>) - "+subTask.title;
+							td.setAttribute("colspan",4);
+							tr.appendChild(td);
+						projectTable.appendChild(tr);
+						
+						
+						
+						for(var k=0;k<projectHours.length;k++){
+								if(projectHours[k].task==task.title && projectHours[k].subtask==subTask.title && Number(projectHours[k].hours)>0){
+									var tr	=	document.createElement("TR");
+									tr.setAttribute("class","subTaskRow");
+									tr.setAttribute("data-eng",projectHours[k].engcode);
+									tr.setAttribute("data-task",task.title);
+									tr.setAttribute("data-subtask",subTask.title);
+										var td	=	document.createElement("TD");
+										td.innerHTML=datetimeToDate(Number(projectHours[k].date));
+										tr.appendChild(td);
+										
+										var td	=	document.createElement("TD");
+										td.innerHTML=projectHours[k].hours;
+										tr.appendChild(td);
+										
+										var td	=	document.createElement("TD");
+										td.innerHTML=getUserNameFromCode(projectHours[k].engcode);
+										tr.appendChild(td);
+										
+										var td	=	document.createElement("TD");
+										td.innerHTML=(projectHours[k].comment) ? projectHours[k].comment : "";
+										tr.appendChild(td);
+										
+										var td	=	document.createElement("TD");
+										td.innerHTML="Edit";
+										td.setAttribute("onclick","redirectWithQuery('/weekly-input')");
+										tr.appendChild(td);
+										
+									projectTable.appendChild(tr);
+								}
+						}
+						/*var tr	=	document.createElement("TR");
+						tr.setAttribute("class","taskRow");
+						tr.setAttribute("data-task",task.title);
+							var td	=	document.createElement("TD");
+							td.setAttribute("colspan",2);
+							td.setAttribute("style","text-align:right;font-weight:bold;");
+							td.setAttribute("class","summationCell");
+							td.setAttribute("data-task",task.title);
+							td.setAttribute("data-subtask",subTask.title);
+							td.innerHTML="0";
+							tr.appendChild(td);
+						projectTable.appendChild(tr);*/
+						
+					}
+				}else{
+					for(var j=0;j<projectHours.length;j++){
+							if(projectHours[j].task==task.title && !projectHours[j].subtask && Number(projectHours[j].hours)>0){
+								var tr	=	document.createElement("TR");
+								tr.setAttribute("class","taskRow");
+								tr.setAttribute("data-task",task.title);
+								tr.setAttribute("data-eng",projectHours[j].engcode);
+									var td	=	document.createElement("TD");
+									td.innerHTML=datetimeToDate(Number(projectHours[j].date));
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML=projectHours[j].hours;
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML=getUserNameFromCode(projectHours[j].engcode);
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML=(projectHours[j].comment) ? projectHours[j].comment : "";
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML="Edit";
+									td.setAttribute("onclick","window.location.href='/weekly-input?lastproject="+projectHours[j].pcode+"&date="+projectHours[j].date+"&eng="+projectHours[j].engcode+"'")
+									tr.appendChild(td);
+								projectTable.appendChild(tr);
+							}
+					}
+					/*var tr	=	document.createElement("TR");
+					tr.setAttribute("class","taskRow");
+					tr.setAttribute("data-task",task.title);
+						var td	=	document.createElement("TD");
+						td.setAttribute("colspan",2);
+						td.setAttribute("style","text-align:right;font-weight:bold;");
+						td.setAttribute("class","summationCell");
+						td.setAttribute("data-task",task.title);
+						td.setAttribute("data-nosubtasks",true);
+						td.innerHTML="0";
+						tr.appendChild(td);
+					projectTable.appendChild(tr);*/
+					
+				}
+				
+			}
+			var tr	=	document.createElement("TR");
+				var td	=	document.createElement("TD");
+				td.setAttribute("colspan",2);
+				td.setAttribute("style","text-align:right;font-weight:bold;background-color:rgb(37,78,118);color:rgb(255,255,255)");
+				td.setAttribute("id","totalTableHours");
+			tr.appendChild(td);
+			projectTable.appendChild(tr);
+			
+			
+			document.getElementsByClassName("projectTable")[0].appendChild(projectTable);
+			updateSums();
+			var filters	=	document.getElementsByClassName("tableFilters")[0].querySelectorAll(".filter");
+			for(var i=0;i<filters.length;i++){
+				tableDisplay(filters[i].querySelectorAll(".name")[0]);
+			};
+		}
+		
+		function updateSums(){
+			var table				=	document.getElementsByClassName("projectExportTable")[0];
+			var hourRows			=	table.querySelectorAll("TR");
+			var hiddenRowsIndexes	=	[];//Cant use splice ona node list (array of elements)
+			for(var i=0;i<hourRows.length;i++){
+				if(hourRows[i].classList.contains("taskName") || hourRows[i].classList.contains("subTaskName") || hourRows[i].style.display=="none"){
+					hiddenRowsIndexes.push(i);
+				}
+			}
+			var taskRows	=	table.querySelectorAll(".taskName");
+			var subTaskRows	=	table.querySelectorAll(".subTaskName");
+			for(var i=0;i<taskRows.length;i++){
+				var sum		=	0;
+				for(var j=0;j<hourRows.length;j++){
+					if(taskRows[i].dataset.task==hourRows[j].dataset.task && hiddenRowsIndexes.indexOf(j)<0){
+						sum	=	sum + Number(hourRows[j].querySelectorAll("TD")[1].innerHTML);
+					}
+				}
+				taskRows[i].querySelectorAll(".taskSum")[0].innerHTML	=	roundedHours(sum);
+			}
+
+			for(var i=0;i<subTaskRows.length;i++){
+				var sum		=	0;
+				for(var j=0;j<hourRows.length;j++){
+					if(subTaskRows[i].dataset.task==hourRows[j].dataset.task && subTaskRows[i].dataset.subtask==hourRows[j].dataset.subtask && hiddenRowsIndexes.indexOf(j)<0){
+						sum	=	sum + Number(hourRows[j].querySelectorAll("TD")[1].innerHTML);
+					}
+				}
+				subTaskRows[i].querySelectorAll(".subTaskSum")[0].innerHTML	=	roundedHours(sum);
+			}
+
+			var sum		=	0;
+			for(var i=0;i<hourRows.length;i++){
+				if( hiddenRowsIndexes.indexOf(i)<0 ){
+					if(hourRows[i].querySelectorAll("TD")[1]){
+						sum	=	sum + Number(hourRows[i].querySelectorAll("TD")[1].innerHTML);
+					}
+				}
+			}
+			document.getElementById("totalTableHours").innerHTML=roundedHours(sum);
+		}
+		
+		
+		
+		//Generate Filters
+		var engineers	=	[];
+		for(var i=0;i<projectHours.length;i++){
+			if(projectHours[i].engcode){
+				if(engineers.indexOf(projectHours[i].engcode)<0){
+					engineers.push(projectHours[i].engcode);
+				}
+			}
+		}
+		
+		for(var i=0;i<engineers.length;i++){
+			generateCheckboxList(document.getElementsByClassName("filterWrap")[0],"class:filter",[{"name":"Display "+getUserNameFromCode(engineers[i]),"value":"eng-"+engineers[i],"default":"1"}],"tableDisplay(this)",true);
+		}
+		
+		function tableDisplay(elem){
+			elem	=	elem.parentElement.parentElement.querySelectorAll(".checkbox")[0];
+			var rows	=	document.getElementsByClassName("projectExportTable")[0].querySelectorAll("TR");
+			if(elem.dataset.value.split("-").length>1){
+				if(elem.dataset.value.split("-")[0]=="eng"){
+					//Hide engineers
+					for(var i=0;i<rows.length;i++){
+						if(rows[i].dataset.eng==elem.dataset.value.split("-")[1]){
+							if(Number(elem.dataset.active)!=1){
+								rows[i].style.display="none";
+							}else{
+								rows[i].style.display="table-row";
+							}
+						}
+					}
+				}
+			}else{
+				if(elem.dataset.value=="task"){
+					//Hide task names
+					for(var i=0;i<rows.length;i++){
+						if(rows[i].classList.contains("taskName")){
+							if(Number(elem.dataset.active)!=1){
+								rows[i].style.display="none";
+								for(var j=0;j<document.getElementsByClassName("summationCell").length;j++){
+									if(document.getElementsByClassName("summationCell")[j].dataset.nosubtasks || document.getElementsByClassName("summationCell")[j].dataset.hassubtasks){
+										document.getElementsByClassName("summationCell")[j].parentElement.style.display="none";
+									}
+								}
+							}else{
+								rows[i].style.display="table-row";
+								for(var j=0;j<document.getElementsByClassName("summationCell").length;j++){
+									if(document.getElementsByClassName("summationCell")[j].dataset.nosubtasks || document.getElementsByClassName("summationCell")[j].dataset.hassubtasks){
+										document.getElementsByClassName("summationCell")[j].parentElement.style.display="table-row";
+									}
+								}
+							}
+						}
+					}
+				}else if(elem.dataset.value=="subtask"){
+					//Hide subtask names
+					for(var i=0;i<rows.length;i++){
+						if(rows[i].classList.contains("subTaskName")){
+							if(Number(elem.dataset.active)!=1){
+								rows[i].style.display="none";
+								for(var j=0;j<document.getElementsByClassName("summationCell").length;j++){
+									if(document.getElementsByClassName("summationCell")[j].dataset.subtask){
+										document.getElementsByClassName("summationCell")[j].parentElement.style.display="none";
+									}
+								}
+							}else{
+								rows[i].style.display="table-row";
+								for(var j=0;j<document.getElementsByClassName("summationCell").length;j++){
+									if(document.getElementsByClassName("summationCell")[j].dataset.subtask){
+										document.getElementsByClassName("summationCell")[j].parentElement.style.display="table-row";
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			updateSums();
+		}
+		
+		makeTable();
+		
+		function orderByDate(order){
+			//Order = 0 -> New dates first
+			//Order = 1 -> Old dates first
+			projectHours.sort(function(a,b){ return a.date - b.date; } );
+			dateOrder=order;
+			if(order==0){
+				projectHours.reverse();
+			}
+			engOrder	=	-1;
+			makeTable();
+		}
+		
+		function orderByEng(order){
+			projectHours.sort(function(a,b){ return a.engcode.localeCompare(b.engcode); } );
+			engOrder	=	order;
+			if(order==0){
+				projectHours.reverse();
+			}
+			dateOrder	=	-1;
+			makeTable();
+		}
+	</script>
+	<script>
+		document.getElementsByClassName("pageSubtitle")[0].innerHTML=projectInfo.company+"-"+projectInfo.dispname;
+		function pickProject(projectCode,button){
+			urlObject.lastproject	=	projectCode;
+			redirectWithQuery("/project-view/"+projectCode)
+		}
+	</script>
+<%- include ("partials/footer") -%>

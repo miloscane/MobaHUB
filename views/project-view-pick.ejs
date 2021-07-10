@@ -1,0 +1,10 @@
+<%- include ("partials/header2") -%>
+	<script>
+		if(urlObject.lastproject){
+			redirectWithQuery("/project-view/"+urlObject.lastproject);
+		}else{
+			redirectWithQuery("/project-view/"+infoForPage.projects[0].code);
+		}
+	</script>
+	<div class="pageTitle">Project View</div>
+<%- include ("partials/footer") -%>

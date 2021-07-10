@@ -1,0 +1,116 @@
+<%- include ("partials/header2") -%>
+	<style>
+		#projects{display:none;}
+		#container2{padding-left:0 !important;}
+		#project-opener{display:none !important;}
+	</style>
+	<script src="/html-modules/calendarPageFunctions.js"></script>
+	<div class="pageTitle">Calendar</div>
+	<div class="calendarControlsWrap">
+		<div class="inline">
+			<div class="whiteButton" onclick="monthNav(-1)"><</div>
+		</div>
+		<div class="inline">
+			<select id="month-select" oninput="refreshCalendar()">
+				<option value="0">January</option>
+				<option value="1">February</option>
+				<option value="2">March</option>
+				<option value="3">April</option>
+				<option value="4">May</option>
+				<option value="5">June</option>
+				<option value="6">July</option>
+				<option value="7">August</option>
+				<option value="8">September</option>
+				<option value="9">October</option>
+				<option value="10">November</option>
+				<option value="11">December</option>
+			</select>
+		</div>
+		<div class="inline">
+			<input type="number" id="year-input" oninput="refreshCalendar()">
+		</div>
+		<div class="inline" onclick="monthNav(1)">
+			<div class="whiteButton">></div>
+		</div>
+	</div>
+	<div id="calendar-container">
+		<div class="inline dailyInfo">
+			<div class="title">Daily Information</div>
+			<div id="daily-info">
+				*Click on a date to show information
+			</div>
+		</div>
+		<div class="inline calendarTable">
+			<div class="colorCodes">
+				<div class="colorCodeWrap">
+					<div class="inline colorCode projectStart"></div><div class="inline">Project Start</div>
+				</div>
+				<div class="colorCodeWrap">
+					<div class="inline colorCode projectDeadline"></div><div class="inline">Project Deadline</div>
+				</div>
+				<div class="colorCodeWrap">
+					<div class="inline colorCode projectFinished"></div><div class="inline">Project Finished</div>
+				</div>
+				<div class="colorCodeWrap">
+					<div class="inline colorCode projectHours"></div><div class="inline">Project Hours</div>
+				</div>
+				<div class="colorCodeWrap">
+					<div class="inline colorCode holiday"></div><div class="inline">Holiday</div>
+				</div>
+				<div class="colorCodeWrap">
+					<div class="inline colorCode birthday"></div><div class="inline">Birthday</div>
+				</div>
+				<div class="colorCodeWrap">
+					<div class="inline colorCode vacation"></div><div class="inline">Vacation</div>
+				</div>
+			</div>
+			<table id="calendar-table">
+				<tr>
+					<th>Mon</th>
+					<th>Tue</th>
+					<th>Wed</th>
+					<th>Thu</th>
+					<th>Fri</th>
+					<th>Sat</th>
+					<th>Sun</th>
+				</tr>
+				<tr></tr>
+				<tr></tr>
+				<tr></tr>
+				<tr></tr>
+				<tr></tr>
+				<tr></tr>
+			</table>
+			<script>
+				//Initialize table with TD's
+				var tableRows	=	document.getElementById("calendar-table").querySelectorAll("TR");
+				for(var i=1;i<tableRows.length;i++){
+					for(var j=0;j<7;j++){
+						var td	=	document.createElement("TD");
+						tableRows[i].appendChild(td);
+					}
+				}
+			</script>
+		</div>
+	</div>
+	<script>
+
+		var date	=	new Date();
+		document.getElementById("month-select").value	=	date.getMonth().toString();
+		document.getElementById("year-input").value		=	Number(date.getFullYear());
+
+		refreshCalendar();
+		var gesuredZone = document.getElementById('calendar-table');
+
+		gesuredZone.addEventListener('touchstart', function(event) {
+		    touchstartX = event.touches[0].clientX;
+		    touchstartY = event.touches[0].clientY;
+		}, false);
+
+		gesuredZone.addEventListener('touchend', function(event) {
+		    touchendX = event.changedTouches[0].clientX;
+		    touchendY = event.changedTouches[0].clientY;
+		    handleGesure();
+		}, false); 
+	</script>
+<%- include ("partials/footer") -%>

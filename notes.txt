@@ -1,0 +1,10 @@
+filetype:"email"
+subject:"email subject"
+text:"email text"
+senddate:getTime
+sendshowdate: "2020-1-1"
+sent: true/false
+type: projectdeadline/projectstart/holiday/birthday
+calendardate: getTime()
+actualdate: "2020-1-1"
+notificationname: holidayname/birthdayname/projectcode // Use this to identify if email notification already exists

@@ -1,0 +1,64 @@
+<%- include ("partials/header2") -%>
+	<div class="background"></div>
+	<div class="fullscreen">
+		<div class="container">
+			<form id="login" method="POST" action="/login">
+				<div class="inputWrapper">
+					<div class="inputTitle">E-mail</div>
+					<div class="inputWrap">
+						<input type="text" name="username" class="singleLineInput">
+					</div>
+				</div>
+				<div class="inputWrapper">
+					<div class="inputTitle">Password</div>
+					<div class="inputWrap">
+						<input type="password" name="password" class="singleLineInput">
+					</div>
+				</div>
+				<input type="text" style="display:none" name="url" id="url" class="singleLineInput">
+				<div class="clickableButton2" style="margin-left:0px;margin-right:0px;margin-top:50px;padding:10px" onclick="shouldSubmit()">Log IN</div>
+			</form>
+			<script>
+				<% if (typeof url!="undefined") { %>
+					document.getElementById("url").value="<%- url %>";
+				<% } %>
+				function validateEmail(email) {
+					var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+					return re.test(String(email).toLowerCase());
+				}
+				
+				function shouldSubmit(){
+					var email		=	document.querySelectorAll(".singleLineInput")[0].value;
+					var password	=	document.querySelectorAll(".singleLineInput")[1].value;
+					if(!validateEmail(email)){
+						document.querySelectorAll(".inputWrapper")[0].style.border="2px solid rgb(255,0,0)";
+					}
+					
+					if(!password){
+						document.querySelectorAll(".inputWrapper")[1].style.border="2px solid rgb(255,0,0)";
+					}
+					
+					if(validateEmail(email) && password){
+						document.getElementById("login").submit()
+					}
+				}
+				
+				document.querySelectorAll(".singleLineInput")[1].addEventListener('keypress', function(event) {
+					if (event.keyCode == 13) {
+						shouldSubmit();
+					}
+				});
+			</script>
+		</div>
+	</div>
+	
+	<style>
+		#container2{
+			padding:0 !important;
+		}
+		
+		#top-menu{display:none;}
+
+		#menu-opener{display:none;}
+	</style>
+<%- include ("partials/footer") -%>

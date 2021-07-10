@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+	<html lang="en-US">
+		<head>
+			<meta charset="utf-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<title>MobaHUB</title>
+			<link href="/html-modules/style.css" rel="stylesheet">
+			<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+			<script src="/html-modules/socket.js"></script>
+			<script src="/html-modules/calendar.js"></script>
+			<script src="/html-modules/lightbox.js"></script>
+			<script src="/html-modules/tooltip.js"></script>
+			<script src="/html-modules/graphics.js"></script>
+			<script src="/html-modules/plot.js"></script>
+			<script src="/html-modules/formFunctions.js"></script>
+			<script src="/html-modules/helperFunctions.js"></script>
+			<script src="/html-modules/sortable.js"></script>
+			<script>
+				//var socket	=	io({transports: ['websocket','polling'], upgrade: false});
+				<% if (typeof infoForPage=="undefined") { %>
+					var infoForPage	=	{};
+					console.log("WARNING: infoForPage is undefined!")
+				<% }else{ %>
+					var infoForPage	=	<%- JSON.stringify(infoForPage) %>;
+					infoForPage.projects.sort( function( a, b ) {
+					    a = a.company ? a.company.toLowerCase() : "";
+					    b = b.company ? b.company.toLowerCase() : "";
+
+					    return a < b ? -1 : a > b ? 1 : 0;
+					});
+				<% } %>
+				console.log(infoForPage);
+			</script>
+		</head>
+
+		<body id="body">
+			<script>
+				const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+				const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+			</script>
+			<% if (typeof infoForPage!="undefined") { %>
+				<% if (infoForPage.user) { %>
+					<div id="logout" onclick="window.location.href='/logout'">
+						Logout
+					</div>
+					<script>
+						if( typeof Android != "undefined"){
+							document.getElementById("logout").style.display="none";
+						}
+						if(viewportWidth<900){
+							document.getElementById("logout").style.display="none";
+						}
+					</script>
+				<% } %>
+			<% }else{ %>
+				<style>
+					#project-opener{display:none !important;}
+				</style>
+			<% } %>
+			<div class="menuWrapper">
+				<div id="project-opener" onclick="collapseProjects()">
+					< Hide
+				</div>
+				<div id="menu-opener" onclick="responsiveMenuOpen(this)">
+					< Menu
+				</div>
+				<div id="top-menu">
+					<div class="menu-item whiteButton" onclick="redirectWithQuery('/all-projects');">All Projects</div>
+					<div class="menu-item whiteButton" onclick="redirectWithQuery('/project-view');">Project View</div>
+					<div class="menu-item whiteButton" onclick="redirectWithQuery('/project-edit');">Project Edit</div>
+					<div class="menu-item whiteButton" onclick="redirectWithQuery('/weekly-input');">Hour Input</div>
+					<div class="menu-item whiteButton" onclick="redirectWithQuery('/calendar');">Calendar</div>
+					<div class="menu-item whiteButton" onclick="redirectWithQuery('/whitepaper');">Whitepaper</div>
+					<div class="menu-item whiteButton" onclick="redirectWithQuery('/user-settings');">User Settings</div>
+				</div>
+			</div>
+			<script>
+				//Get URL Parameters
+				var urlObject	=	{};
+				var urlArray	=	(window.location.href.split("?")[1]) ? window.location.href.split("?")[1].split("&") : [];
+				for(var i=0;i<urlArray.length;i++){
+					urlObject[decodeURIComponent(urlArray[i].split("=")[0])]	=	decodeURIComponent(urlArray[i].split("=")[1]);
+				}
+				if(!urlObject.projectscroll){
+					urlObject.projectscroll	=	0;
+				}
+
+				function redirectWithQuery(url,extraQueries){
+					urlObject.projectscroll	=	Number(document.getElementById("projects").scrollTop);
+					var keys				=	Object.keys(urlObject);
+					var queryString			=	"?";
+					for(var i=0;i<keys.length;i++){
+						queryString 		+=	keys[i] + "=" + urlObject[keys[i]] + "&";
+					}
+					if(extraQueries){
+						for(var i=0;i<extraQueries.length;i++){
+							queryString		+=	extraQueries[i].name + "=" + extraQueries[i].value + "&";
+						}
+						queryString			=	queryString.substring(0,queryString.length-1);
+					}else{
+						queryString			=	queryString.substring(0,queryString.length-1);
+					}
+					window.location.href	=	url + queryString;
+				}
+			</script>
+			<%- include ("partials/projects-menu") -%>
+			<script>
+				if(document.getElementById("projects")){
+					document.getElementById("projects").scrollTop	=	Number(urlObject.projectscroll);
+				}
+			</script>
+			<div id="container2">

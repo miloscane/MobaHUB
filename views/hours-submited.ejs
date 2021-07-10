@@ -1,0 +1,49 @@
+<%- include ("partials/header2") -%>
+	<script>
+		var hours	=	<%- JSON.stringify(hours) %>;
+		console.log(hours);
+	</script>
+	<div class="pageTitle">Hours were successfully submitted</div>
+	<div class="pageSubtitle">Hour submission overview</div>
+	<table id="submitted-hours-table">
+		<tr class="header" style="">
+			<td>Engineer</td>
+			<td>Project</td>
+			<td>Task</td>
+			<td>SubTask</td>
+			<td>Hours</td>
+		</tr>
+	</table>
+	<script>
+		function pickProject(projectCode,button){
+			button.classList.add("whiteButtonActive");
+			window.location.href="/project-view/"+projectCode;
+		}
+
+		for(i=0;i<hours.length;i++){
+			var tr	=	document.createElement("TR");
+
+				var td			=	document.createElement("TD");
+				td.innerHTML	=	getUserNameFromCode(hours[i].engcode);
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.innerHTML	=	fullProjectNameFromCode(hours[i].pcode);
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.innerHTML	=	hours[i].task;
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.innerHTML	=	hours[i].subtask;
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.innerHTML	=	hours[i].hours;
+				tr.appendChild(td);
+
+			document.getElementById("submitted-hours-table").appendChild(tr);
+		}
+	</script>
+<%- include ("partials/footer") -%>

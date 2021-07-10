@@ -1,0 +1,89 @@
+<%- include ("partials/header2") -%>
+	<style>
+		#projects{display:none;}
+		#container2{padding-left:0 !important;}
+		#project-opener{display:none !important;}
+	</style>
+	<div class="pageTitle">Whitepaper</div>
+	<div style="margin-top:30px;"><b>Total: </b><%= subscribers.length %></div>
+	<div style="margin-bottom:10px"><b>Active: </b><span id="total-active"></span></div>
+	<table id="whitepaper-table">
+		<tr>
+			<th>Email</th>
+			<th>Name</th>
+			<th>Source</th>
+			<th>Date</th>
+			<th>Status</th>
+			<th>Drip</th>
+		</tr>
+	</table>
+	<script>
+		var subscribers	=	<%- JSON.stringify(subscribers) %>;
+		var totalActive = 0;
+		for(var i=0;i<subscribers.length;i++){
+			subscribers[i].datetime	=	new Date(subscribers[i].created_at).getTime();
+			subscribers[i].showdate	=	new Date(subscribers[i].created_at).getDate()+"-"+eval(new Date(subscribers[i].created_at).getMonth()+1)+"-"+new Date(subscribers[i].created_at).getFullYear();
+			if(subscribers[i].custom_fields.hubstatus=="active"){
+				totalActive++;
+			}
+		}
+		console.log(subscribers[0])
+		document.getElementById("total-active").innerHTML	=	totalActive;
+		subscribers.sort( function( a, b ) {
+		    return a.datetime > b.datetime ? -1 : a.datetime < b.datetime ? 1 : 0;
+		});
+		console.log(subscribers)
+
+		for(var i=0;i<subscribers.length;i++){
+			var subscriber	=	JSON.parse(JSON.stringify(subscribers[i]));
+
+			var tr			=	document.createElement("TR");
+			tr.setAttribute("data-subscriberjson",JSON.stringify(subscriber));
+			if(subscriber.custom_fields.hubstatus=="unsubscribed"){
+				tr.classList.add("unsub")
+			}
+
+				var td			=	document.createElement("TD");
+				td.setAttribute("class","email");
+				td.innerHTML	=	subscriber.email;
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.setAttribute("class","name");
+				td.innerHTML	=	subscriber.custom_fields.name;
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.setAttribute("class","source");
+				td.innerHTML	=	subscriber.custom_fields.source ? subscriber.custom_fields.source : " ";
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.setAttribute("class","date");
+				td.innerHTML	=	subscriber.showdate;
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.setAttribute("class","status");
+				td.innerHTML	=	subscriber.custom_fields.hubstatus;
+				tr.appendChild(td);
+
+				var td			=	document.createElement("TD");
+				td.setAttribute("class","drip");
+					var link	=	document.createElement("A");
+					link.setAttribute("target","_blank");
+					if(subscriber.custom_fields.hubstatus=="unsubscribed"){
+						link.setAttribute("href","https://www.getdrip.com/9469707/subscribers/"+subscriber.id+"?filter=emails");
+					}else{
+						link.setAttribute("href","https://www.getdrip.com/9469707/subscribers/"+subscriber.id);
+					}
+					
+					link.setAttribute("class","whiteButton")
+					link.innerHTML="Drip";
+					td.appendChild(link);
+				tr.appendChild(td);
+
+			document.getElementById("whitepaper-table").appendChild(tr);
+		}
+	</script>
+<%- include ("partials/footer") -%>
