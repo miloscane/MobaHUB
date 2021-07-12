@@ -3,6 +3,11 @@
 	<div class="pageSubtitle"></div>
 	<div id="project-edit" class="projectEditorWrap">
 		<div class="itemWrap">
+			<div class="blueButton" onclick="duplicateProject()" style="display:inline-block;">
+				Duplicate Project
+			</div>
+		</div>
+		<div class="itemWrap">
 			<div class="itemTitle">Company:</div>
 			<div class="itemInputWrap">
 				<input type="text" class="projectCompany">
@@ -88,6 +93,10 @@
 	<form style="display:none" method="POST" action="/postProject" id="post-project-form">
 		<input type="text" id="project-input-form" name="projectjson">
 		<input type="text" id="url-query" name="urlquery">
+	</form>
+	<form style="display:none" method="POST" action="/duplicateProject" id="duplicate-project-form">
+		<input type="text" id="project-duplicate-form" name="projectjson">
+		<input type="text" id="url-query-dup" name="urlquery">
 	</form>
 	<script src="/html-modules/projectEditScripts.js"></script>
 	<script>

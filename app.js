@@ -47,6 +47,17 @@ var transporter = nodemailer.createTransport({
 	}
 });
 
+
+function generateId(length) {
+    var result           = [];
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+		result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
+	}
+   return result.join('');
+}
+
 var mailOptions = {
 	from: '"Mobatec License Server" <do_not_reply@mobatec.nl>',
 	to: 'miloscane@gmail.com,milos@mobatec.nl',
@@ -148,7 +159,7 @@ mongoClient.connect(url,{useUnifiedTopology: true},function(err,client){
 
 
 
-http.listen(process.env.PORT || 3000, function(){
+http.listen(process.env.PORT , function(){
   console.log('Server Started');
 });
 
@@ -900,6 +911,33 @@ server.post('/postProject',function(req,res){
 	}
 });
 
+
+server.post('/duplicateProject',function(req,res){
+	if(req.session.user){
+		var projectJson			=	JSON.parse(req.body.projectjson);
+		var urlQuery				=	req.body.urlquery;
+		mongoClient.connect(url,{useUnifiedTopology: true},function(err,client){
+			if(err){
+				console.log(err)
+			}else{
+				var projects	=	client.db('MobaHub').collection('Projects');
+				projects.find({code:projectJson.code}).toArray(function(err,result){
+					if(result.length>0){
+						//Code already taken, add another random string
+						projectJson.code	=	projectJson.code+"-"+generateId(4);
+					}
+					projects.insertOne(projectJson,function(err,addedResult){
+						client.close();
+						res.redirect('/project-edit'+urlQuery);//ERROR HERE WHEN CODE WAS ALREADY TAKEN!!! You have to regenerate urlQuery, do this when you have time :)
+					});
+				});
+			}
+		});
+	}else{
+		res.redirect('/not-logged-in');
+	}
+});
+	
 server.get('/all-projects',function(req,res){
 	if(req.session.user){
 		mongoClient.connect(url,{useUnifiedTopology: true},function(err,client){

@@ -604,6 +604,140 @@ function submitProject(){
 	document.getElementById("post-project-form").submit();
 }
 
+function duplicateProject(){
+	var wrap	=	document.getElementById("project-edit");
+	var projectJson				=	{};
+	projectJson.code			=	wrap.dataset.code+"-"+generateId(4);
+	//Company
+	projectJson.company			=	wrap.querySelectorAll(".projectCompany")[0].value;
+	//Filetype
+	projectJson.filetype		=	"projectinfo";
+	//Name
+	projectJson.dispname		=	wrap.querySelectorAll(".projectName")[0].value+"-Copy";
+	//Created Date
+	projectJson.createddate		=	new Date().getTime();
+	//Team
+	projectJson.team	=	[];
+	for(var i=0;i<wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;i++){
+		if(Number(wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[i].dataset.active)==1){
+			projectJson.team.push(wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[i].dataset.value)
+		}
+	}
+	//Start date
+	projectJson.startdate	=	Number(new Date(wrap.querySelectorAll(".projectStart")[0].value).getTime());
+	
+	//Deadline
+	projectJson.deadline	=	Number(new Date(wrap.querySelectorAll(".projectDeadline")[0].value).getTime());
+	
+	//Finished
+	projectJson.finished			=	Number(wrap.querySelectorAll(".finished")[0].querySelectorAll(".checkbox")[0].dataset.active)
+	
+	//Finished Date
+	if(projectJson.finished==1){
+		projectJson.finisheddate	=	Number(new Date(wrap.querySelectorAll(".projectFinishedDate")[0].value).getTime());
+	}
+
+	//Hidden
+	projectJson.hidden				=	Number(wrap.querySelectorAll(".hidden")[0].querySelectorAll(".checkbox")[0].dataset.active);
+	
+	//Budgeted Hours
+	projectJson.budgetedhours		=	wrap.querySelectorAll(".budgetedHours")[0].value;
+	
+	//Description
+	projectJson.description			=	wrap.querySelectorAll(".projectDescription")[0].value;
+	
+	//Extra Buttons
+	projectJson.extrabuttons	=	[];
+	for(var i=0;i<document.getElementsByClassName("extraButtonUrlInput").length;i++){
+		if(document.getElementsByClassName("extraButtonUrlInput")[i].value){
+			var buttonObject	=	{};
+			buttonObject.caption	=	document.getElementsByClassName("extraButtonNameInput")[i].value;
+			buttonObject.url		=	document.getElementsByClassName("extraButtonUrlInput")[i].value;
+			projectJson.extrabuttons.push(buttonObject);
+		}
+	}
+	
+	//Tasks
+	projectJson.tasks	=	[];
+	var tasksElem	=	wrap.querySelectorAll(".tasks")[0];
+	for(var i=0;i<tasksElem.querySelectorAll(".task").length;i++){
+		var taskElem	=	tasksElem.querySelectorAll(".task")[i];
+		var taskJson	=	{};
+		//Task Name
+		if(taskElem.querySelectorAll(".taskName")[0].value==""){
+			continue;
+		}else{
+			taskJson.title	=	taskElem.querySelectorAll(".taskName")[0].value;
+		}
+		
+		//Task Deadline
+		taskJson.useprojectdeadline	=	Number(taskElem.querySelectorAll(".taskdeadlinecheckbox")[0].querySelectorAll(".checkbox")[0].dataset.active);
+		taskJson.deadline			=	Number(new Date(taskElem.querySelectorAll(".taskDeadline")[0].value).getTime());
+		
+		//Task Budgeted Hours
+		taskJson.budgetedhours	=	taskElem.querySelectorAll(".taskBudgetedHours")[0].value;
+		
+		//Team
+		taskJson.team	=	[];
+		for(var j=0;j<taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;j++){
+			
+			if(Number(taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[j].dataset.active)==1){
+				taskJson.team.push(taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[j].dataset.value)
+			}
+		}
+		
+		//Description
+		taskJson.description	=	taskElem.querySelectorAll(".taskDescription")[0].value;
+		
+		//Subtasks
+		var subTasksElem		=	taskElem.querySelectorAll(".subTasks")[0];
+		taskJson.subTasks		=	[];
+		for(var j=0;j<subTasksElem.querySelectorAll(".subTask").length;j++){
+			var subTaskElem		=	subTasksElem.querySelectorAll(".subTask")[j];
+			var subTaskJson		=	{};
+			//SubTask Name
+			if(subTaskElem.querySelectorAll(".subTaskName")[0].value==""){
+				continue;
+			}else{
+				subTaskJson.title		=	subTaskElem.querySelectorAll(".subTaskName")[0].value;
+			}
+			
+			//SubTask Deadline
+			subTaskJson.usetaskdeadline	=	Number(subTaskElem.querySelectorAll(".subtaskdeadinecheckbox")[0].querySelectorAll(".checkbox")[0].dataset.active);
+			subTaskJson.deadline		=	Number(new Date(subTaskElem.querySelectorAll(".subTaskDeadline")[0].value).getTime());
+		
+			//Task Budgeted Hours
+			subTaskJson.budgetedhours	=	subTaskElem.querySelectorAll(".subTaskBudgetedHours")[0].value;
+			
+			//Team
+			subTaskJson.team			=	[];
+			for(var k=0;k<subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;k++){
+				if(Number(subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[k].dataset.active)==1){
+					subTaskJson.team.push(subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[k].dataset.value)
+				}
+			}
+			
+			//Description
+			subTaskJson.description		=	subTaskElem.querySelectorAll(".subTaskDescription")[0].value;
+			
+			taskJson.subTasks.push(subTaskJson);
+		}
+		projectJson.tasks.push(taskJson);
+	}
+	document.getElementById("project-duplicate-form").value	=	JSON.stringify(projectJson);
+	urlObject.projectscroll	=	Number(document.getElementById("projects").scrollTop);
+	urlObject.lastproject	=	projectJson.code;
+	var keys				=	Object.keys(urlObject);
+	var queryString			=	"?";
+	for(var i=0;i<keys.length;i++){
+		queryString 		+=	keys[i] + "=" + urlObject[keys[i]] + "&";
+	}
+	queryString			=	queryString.substring(0,queryString.length-1);
+	document.getElementById("url-query-dup").value	=	queryString;
+	document.getElementById("duplicate-project-form").submit();
+	
+}
+
 function setDateOfTask(elem){
 	var dateinput 			=	elem.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.querySelectorAll('input[type="date"]')[0];
 	if(Number(elem.dataset.active)==1){
