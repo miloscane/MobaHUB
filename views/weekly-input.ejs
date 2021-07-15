@@ -80,21 +80,17 @@
 		var hours		=	<%- JSON.stringify(hours) %>;
 		
 		function nextWeek(){
-			var date		=	new Date(document.getElementById("date-input").value).getTime();
-			var newDate		=	new Date(date+8*8.64e+7);
-			if(newDate.getTime()<new Date(document.getElementById("date-input").max).getTime()){
-				setDateOfPage(newDate.getTime());
-				refresh();
-			}
+			var date		=	new Date(document.getElementById("date-input").value);
+			date.setDate(date.getDate() + 7);
+			setDateOfPage(date.getTime());
+			refresh();
 		}
 		
 		function previousWeek(){
-			var date		=	new Date(document.getElementById("date-input").value).getTime();
-			var newDate		=	new Date(date-10*8.64e+7);
-			if(newDate.getTime()>new Date(document.getElementById("date-input").min).getTime()){
-				setDateOfPage(newDate.getTime());
-				refresh();
-			}
+			var date		=	new Date(document.getElementById("date-input").value);
+			date.setDate(date.getDate() - 7);
+			setDateOfPage(date.getTime());
+			refresh();
 		}
 
 		function inputDate(elem){

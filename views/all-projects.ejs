@@ -100,6 +100,7 @@
 			}
 			
 			function pickProject(projectCode,button){
+				urlObject.lastproject	=	projectCode;
 				redirectWithQuery("/project-view/"+projectCode)
 			}
 
