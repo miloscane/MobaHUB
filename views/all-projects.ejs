@@ -41,7 +41,7 @@
 					var projectSpentBar	=	document.createElement("DIV");
 					projectSpentBar.setAttribute("class","projectSpentBar");
 					var budgetRatio	=	(project.budgetedhours && project.budgetedhours!=0) ? eval(project.spenthours/project.budgetedhours*100) : 0;
-					var colorString	=	(budgetRatio<=101) ? "rgb(27,255,0)" : (budgetRatio>101 && budgetRatio<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
+					var colorString	=	(budgetRatio<=101) ? "rgb(20,255,20)" : (budgetRatio>101 && budgetRatio<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
 					projectSpentBar.setAttribute("style","background-color:"+colorString+";width:"+budgetRatio+"%;");
 					projectSpentBarWrap.appendChild(projectSpentBar);
 				

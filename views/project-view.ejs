@@ -111,6 +111,22 @@
 					document.getElementById("projectspent").innerHTML=roundedHours(projectInfo.spenthours);
 				</script>
 			</div>
+			<div class="projectProgress projectItem">
+				<b>Progress:</b> <span id="progresstext"></span><br>
+				<div class="progressBarWrap blueBorder">
+					<div class="progressBar" id="projectProgress"></div>
+				</div>
+				<script>
+					var budget 		=	projectInfo.budgetedhours ? Number(projectInfo.budgetedhours) : 0;
+					var spent 		=	roundedHours(projectInfo.spenthours);
+					var progress	=	roundedHours(Math.min(spent/budget*100,120));
+					var realProgress = roundedHours(spent/budget*100);
+					var colorString	=	(progress<=101) ? "rgb(20,255,20)" : (progress>101 && progress<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
+					document.getElementById("progresstext").innerHTML	=	realProgress + "%";
+					document.getElementById("projectProgress").style.width	=	progress + "%";
+					document.getElementById("projectProgress").style.backgroundColor	=	colorString;
+				</script>
+			</div>
 		</div>
 	</div>
 	<div class="projectTasksWrap">
@@ -148,6 +164,17 @@
 					taskSpent.setAttribute("class","taskSpent taskItem");
 					taskSpent.innerHTML="<b>Spent:</b><br>"+roundedHours(task.spenthours);
 					taskInfoWrap.appendChild(taskSpent);
+
+					var taskProgress	=	document.createElement("DIV");
+					taskProgress.setAttribute("class","taskProgress taskItem");
+					var budget 		=	task.budgetedhours ? Number(task.budgetedhours) : 0;
+					var spent 		=	roundedHours(task.spenthours);
+					var progress	=	roundedHours(Math.min(spent/budget*100,120));
+					var realProgress = roundedHours(spent/budget*100);
+					var colorString	=	(progress<=101) ? "rgb(20,255,20)" : (progress>101 && progress<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
+					taskProgress.innerHTML="<b>Progress:</b> "+ realProgress +"%<br><div class=\"progressBarWrap blueBorder\"><div class=\"progressBar\" style=\"width:"+progress+"%;background-color:"+colorString+";\"></div></div>";
+					taskInfoWrap.appendChild(taskProgress);
+
 					
 					for(var j=0;j<task.enghours.length;j++){
 						if(task.enghours[j].hours>0){
@@ -189,6 +216,16 @@
 							subTaskSpent.setAttribute("class","subTaskSpent subTaskItem");
 							subTaskSpent.innerHTML="<b>Spent:</b><br>"+roundedHours(subTask.spenthours);
 							subTaskWrap.appendChild(subTaskSpent);
+						
+							var subTaskProgress	=	document.createElement("DIV");
+							subTaskProgress.setAttribute("class","subTaskSpent subTaskItem");
+							var budget 		=	subTask.budgetedhours ? Number(subTask.budgetedhours) : 0;
+							var spent 		=	roundedHours(subTask.spenthours);
+							var progress	=	roundedHours(Math.min(spent/budget*100,120));
+							var realProgress = roundedHours(spent/budget*100);
+							var colorString	=	(progress<=101) ? "rgb(20,255,20)" : (progress>101 && progress<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
+							subTaskProgress.innerHTML="<b>Progress:</b> "+ realProgress +"%<br><div class=\"progressBarWrap blueBorder\"><div class=\"progressBar\" style=\"width:"+progress+"%;background-color:"+colorString+";\"></div></div>";
+							subTaskWrap.appendChild(subTaskProgress);
 							
 							for(var k=0;k<subTask.enghours.length;k++){
 								if(subTask.enghours[k].hours>0){

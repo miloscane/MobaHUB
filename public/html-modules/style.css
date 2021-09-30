@@ -1982,6 +1982,7 @@ a{text-decoration:none;color:inherit}
 
 .projectTasksWrap .taskWrap .engSpent{
 	width:60px !important;
+	padding-left: 26px;
 }
 
 .projectTasksWrap .subTasksWrap{
@@ -2850,6 +2851,19 @@ a{text-decoration:none;color:inherit}
 	padding:3px;
 }
 
+.blueBorder{
+	border: 1px solid rgb(20,42,64);
+}
+
+.progressBarWrap{
+	padding: 5px 0;
+	background-color: rgb(37,78,118);
+}
+
+.progressBar{
+	height: 4px;
+	width: 0%;
+}
 
 @media screen and (max-width: 900px) {
 	#top-menu{
