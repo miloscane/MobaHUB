@@ -2878,6 +2878,9 @@ a{text-decoration:none;color:inherit}
 	font-weight: 600;
 	background-color: rgb(37,78,118);
 	color: rgb(255,255,255);
+	position: sticky; 
+	top: 92px; 
+	z-index: 1;
 }
 
 .projectTaskTable th, .projectTaskTable td{
