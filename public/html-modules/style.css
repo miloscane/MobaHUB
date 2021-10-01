@@ -2865,6 +2865,39 @@ a{text-decoration:none;color:inherit}
 	width: 0%;
 }
 
+.projectTaskTable{
+	border-collapse: collapse;
+}
+
+.projectTaskTable .progressBarWrap{
+	width: 78%;
+}
+
+.projectTaskTable th{
+	text-align: left;
+	font-weight: 600;
+	background-color: rgb(37,78,118);
+	color: rgb(255,255,255);
+}
+
+.projectTaskTable th, .projectTaskTable td{
+	padding: 6px 3px;
+	vertical-align: middle;
+}
+
+.projectTaskTable td{
+	border: 1px solid rgb(100,100,100);
+}
+
+.projectTaskTable .subTaskRow{
+	background-color: rgb(230,230,230);
+	font-size: 14px;
+}
+
+.projectTaskTable .subTaskRow td:first-child{
+	padding-left: 15px;
+}
+
 @media screen and (max-width: 900px) {
 	#top-menu{
 		width:35%;

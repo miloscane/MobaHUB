@@ -129,106 +129,8 @@
 			</div>
 		</div>
 	</div>
-	<div class="projectTaskTableWrap">
-		<table class="projectTaskTable">
-			<thead>
-				<tr>
-					<th>Task/Subtask</th>
-					<th>Budget</th>
-					<th>Spent</th>
-					<th>Progress</th>
-					<th>Engineer hours</th>
-				</tr>
-			</thead>
-			<tbody id="project-task-table-body"></tbody>
-			<script>
-				var wrap 	=	document.getElementById("project-task-table-body");
-				for(var i=0;i<projectInfo.tasks.length;i++){
-					var task	=	JSON.parse(JSON.stringify(projectInfo.tasks[i]));
-
-					var tr		=	document.createElement("TR");
-
-						var td 	=	document.createElement("TD");
-						td.innerHTML	=	task.title;
-						tr.appendChild(td);
-
-						var td 	=	document.createElement("TD");
-						td.innerHTML	=	task.budgetedhours ? task.budgetedhours : "0";
-						tr.appendChild(td);
-
-						var td 	=	document.createElement("TD");
-						td.innerHTML	=	task.spenthours;
-						tr.appendChild(td);
-
-						var td 	=	document.createElement("TD");
-							var budget 			=	task.budgetedhours ? Number(task.budgetedhours) : 0;
-							var spent 			=	roundedHours(task.spenthours);
-							var progress		=	roundedHours(Math.min(spent/budget*100,120));
-							var realProgress	=	roundedHours(spent/budget*100);
-							var colorString		=	(progress<=101) ? "rgb(20,255,20)" : (progress>101 && progress<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
-
-							td.innerHTML=realProgress +"%<br><div class=\"progressBarWrap blueBorder\"><div class=\"progressBar\" style=\"width:"+progress+"%;background-color:"+colorString+";\"></div></div>";
-						tr.appendChild(td);
-
-						var td 	=	document.createElement("TD");
-							var engHourString	=	"";
-							for(var j=0;j<task.enghours.length;j++){
-								if(task.enghours[j].hours>0){
-									engHourString += "<b>"+getUserAbrvFromCode(task.enghours[j].engcode)+":</b>"+roundedHours(task.enghours[j].hours)+"; ";
-								}
-							}
-							engHourString.slice(0,-2);
-
-						td.innerHTML	=	engHourString;
-						tr.appendChild(td);
-
-					wrap.appendChild(tr);
-					//Subtasks
-					for(var j=0;j<task.subTasks.length;j++){
-						var subTask	=	JSON.parse(JSON.stringify(task.subTasks[j]));
-
-						var tr 	=	document.createElement("TR");
-						tr.setAttribute("class","subTaskRow");
-
-							var td 	=	document.createElement("TD");
-							td.innerHTML	=	subTask.title;
-							tr.appendChild(td);
-
-							var td 	=	document.createElement("TD");
-							td.innerHTML	=	subTask.budgetedhours ? subTask.budgetedhours : "0";
-							tr.appendChild(td);
-
-							var td 	=	document.createElement("TD");
-							td.innerHTML	=	subTask.spenthours;
-							tr.appendChild(td);
-
-							var td 	=	document.createElement("TD");
-								var budget 			=	subTask.budgetedhours ? Number(subTask.budgetedhours) : 0;
-								var spent 			=	roundedHours(subTask.spenthours);
-								var progress		=	roundedHours(Math.min(spent/budget*100,120));
-								var realProgress	=	roundedHours(spent/budget*100);
-								var colorString		=	(progress<=101) ? "rgb(20,255,20)" : (progress>101 && progress<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
-
-								td.innerHTML=realProgress +"%<br><div class=\"progressBarWrap blueBorder\"><div class=\"progressBar\" style=\"width:"+progress+"%;background-color:"+colorString+";\"></div></div>";
-							tr.appendChild(td);
-
-							var td 	=	document.createElement("TD");
-								var engHourString	=	"";
-								for(var k=0;k<subTask.enghours.length;k++){
-									if(subTask.enghours[k].hours>0){
-										engHourString += "<b>"+getUserAbrvFromCode(subTask.enghours[k].engcode)+":</b>"+roundedHours(subTask.enghours[k].hours)+"; ";
-									}
-								}
-								engHourString.slice(0,-2);
-
-							td.innerHTML	=	engHourString;
-							tr.appendChild(td);
-
-						wrap.appendChild(tr);
-					}
-				}
-			</script>
-		</table>
+	<div class="projectTasksWrap">
+		
 	</div>
 	<div class="tableFilters">
 		<div class="filterWrap">
@@ -240,6 +142,107 @@
 	</div>
 	<div class="projectTable"></div>
 	<script>
+		for(var i=0;i<projectInfo.tasks.length;i++){
+			var task	=	JSON.parse(JSON.stringify(projectInfo.tasks[i]));
+			var taskWrap	=	document.createElement("DIV");
+			taskWrap.setAttribute("class","taskWrap");
+			
+				var taskInfoWrap	=	document.createElement("DIV");
+				taskInfoWrap.setAttribute("class","taskInfoWrap");
+				
+					var taskName	=	document.createElement("DIV");
+					taskName.setAttribute("class","taskName taskItem");
+					taskName.innerHTML="<b>Task:</b><br>"+task.title;
+					taskInfoWrap.appendChild(taskName);
+					
+					var taskBudget	=	document.createElement("DIV");
+					taskBudget.setAttribute("class","taskBudget taskItem");
+					taskBudget.innerHTML= task.budgetedhours ? "<b>Budget:</b><br>"+task.budgetedhours : "<b>Budget:</b><br>0";
+					taskInfoWrap.appendChild(taskBudget);
+					
+					var taskSpent	=	document.createElement("DIV");
+					taskSpent.setAttribute("class","taskSpent taskItem");
+					taskSpent.innerHTML="<b>Spent:</b><br>"+roundedHours(task.spenthours);
+					taskInfoWrap.appendChild(taskSpent);
+
+					var taskProgress	=	document.createElement("DIV");
+					taskProgress.setAttribute("class","taskProgress taskItem");
+					var budget 		=	task.budgetedhours ? Number(task.budgetedhours) : 0;
+					var spent 		=	roundedHours(task.spenthours);
+					var progress	=	roundedHours(Math.min(spent/budget*100,120));
+					var realProgress = roundedHours(spent/budget*100);
+					var colorString	=	(progress<=101) ? "rgb(20,255,20)" : (progress>101 && progress<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
+					taskProgress.innerHTML="<b>Progress:</b> "+ realProgress +"%<br><div class=\"progressBarWrap blueBorder\"><div class=\"progressBar\" style=\"width:"+progress+"%;background-color:"+colorString+";\"></div></div>";
+					taskInfoWrap.appendChild(taskProgress);
+
+					
+					for(var j=0;j<task.enghours.length;j++){
+						if(task.enghours[j].hours>0){
+							var engSpent	=	document.createElement("DIV");
+							engSpent.setAttribute("class","engSpent taskItem");
+							engSpent.innerHTML="<b>"+getUserAbrvFromCode(task.enghours[j].engcode)+"</b><br>"+roundedHours(task.enghours[j].hours);
+							taskInfoWrap.appendChild(engSpent);
+						}
+					}
+					
+				taskWrap.appendChild(taskInfoWrap);
+				
+				var subTasksWrap	=	document.createElement("DIV");
+				subTasksWrap.setAttribute("class","subTasksWrap");
+					
+					if(task.subTasks.length>0){
+						var title	=	document.createElement("DIV");
+						title.innerHTML="<b>SubTasks:</b>"
+						subTasksWrap.appendChild(title);
+					}
+					
+					for(var j=0;j<task.subTasks.length;j++){
+						var subTask	=	JSON.parse(JSON.stringify(task.subTasks[j]));
+						
+						var subTaskWrap	=	document.createElement("DIV");
+						subTaskWrap.setAttribute("class","subTaskWrap");
+						
+							var subTaskName	=	document.createElement("DIV");
+							subTaskName.setAttribute("class","subTaskName subTaskItem");
+							subTaskName.innerHTML=subTask.title;
+							subTaskWrap.appendChild(subTaskName);
+							
+							var subTaskBudget	=	document.createElement("DIV");
+							subTaskBudget.setAttribute("class","subTaskBudget subTaskItem");
+							subTaskBudget.innerHTML=subTask.budgetedhours ? "<b>Budget:</b><br>"+subTask.budgetedhours : "<b>Budget:</b><br>0";
+							subTaskWrap.appendChild(subTaskBudget);
+						
+							var subTaskSpent	=	document.createElement("DIV");
+							subTaskSpent.setAttribute("class","subTaskSpent subTaskItem");
+							subTaskSpent.innerHTML="<b>Spent:</b><br>"+roundedHours(subTask.spenthours);
+							subTaskWrap.appendChild(subTaskSpent);
+						
+							var subTaskProgress	=	document.createElement("DIV");
+							subTaskProgress.setAttribute("class","subTaskSpent subTaskItem");
+							var budget 		=	subTask.budgetedhours ? Number(subTask.budgetedhours) : 0;
+							var spent 		=	roundedHours(subTask.spenthours);
+							var progress	=	roundedHours(Math.min(spent/budget*100,120));
+							var realProgress = roundedHours(spent/budget*100);
+							var colorString	=	(progress<=101) ? "rgb(20,255,20)" : (progress>101 && progress<=110) ? "rgb(255,200,0)" : "rgb(250,0,0)";
+							subTaskProgress.innerHTML="<b>Progress:</b> "+ realProgress +"%<br><div class=\"progressBarWrap blueBorder\"><div class=\"progressBar\" style=\"width:"+progress+"%;background-color:"+colorString+";\"></div></div>";
+							subTaskWrap.appendChild(subTaskProgress);
+							
+							for(var k=0;k<subTask.enghours.length;k++){
+								if(subTask.enghours[k].hours>0){
+									var engSpent	=	document.createElement("DIV");
+									engSpent.setAttribute("class","engSpent subTaskItem");
+									engSpent.innerHTML="<b>"+getUserAbrvFromCode(subTask.enghours[k].engcode)+"</b><br>"+roundedHours(subTask.enghours[k].hours);
+									subTaskWrap.appendChild(engSpent);
+								}
+							}
+						
+						subTasksWrap.appendChild(subTaskWrap)
+					}
+					
+				taskWrap.appendChild(subTasksWrap);
+			
+			document.getElementsByClassName("projectTasksWrap")[0].appendChild(taskWrap)
+		}
 		
 		function makeTable(){
 			document.getElementsByClassName("projectTable")[0].innerHTML="";
