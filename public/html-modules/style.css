@@ -2867,6 +2867,8 @@ a{text-decoration:none;color:inherit}
 
 .projectTaskTable{
 	border-collapse: collapse;
+	min-width: 960px;
+	margin-bottom: 25px;
 }
 
 .projectTaskTable .progressBarWrap{
@@ -2886,6 +2888,22 @@ a{text-decoration:none;color:inherit}
 .projectTaskTable th, .projectTaskTable td{
 	padding: 6px 3px;
 	vertical-align: middle;
+}
+
+.projectTaskTable th:first-child, .projectTaskTable td:first-child{
+	width: 220px;
+}
+
+.projectTaskTable th:nth-child(2), .projectTaskTable td:nth-child(2){
+	width: 100px;
+}
+
+.projectTaskTable th:nth-child(3), .projectTaskTable td:nth-child(3){
+	width: 100px;
+}
+
+.projectTaskTable th:nth-child(4), .projectTaskTable td:nth-child(4){
+	width: 300px;
 }
 
 .projectTaskTable td{
