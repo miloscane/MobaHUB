@@ -111,6 +111,13 @@
 					document.getElementById("projectspent").innerHTML=roundedHours(projectInfo.spenthours);
 				</script>
 			</div>
+			<div class="projectLeftOver projectItem">
+				<b>Left Over:</b><br>
+				<span id="projectleftover"></span>
+				<script>
+					document.getElementById("projectleftover").innerHTML=roundedHours(Math.max(budget-projectInfo.spenthours,0));
+				</script>
+			</div>
 			<div class="projectProgress projectItem">
 				<b>Progress:</b> <span id="progresstext"></span><br>
 				<div id="total-progress">
@@ -142,6 +149,7 @@
 					<th>Task/Subtask</th>
 					<th>Budget</th>
 					<th>Spent</th>
+					<th>Left Over</th>
 					<th>Progress</th>
 					<th>Engineer hours</th>
 				</tr>
@@ -164,6 +172,11 @@
 
 						var td 	=	document.createElement("TD");
 						td.innerHTML	=	roundedHours(task.spenthours);
+						tr.appendChild(td);
+
+						var td 	=	document.createElement("TD");
+						var budget = task.budgetedhours ? task.budgetedhours : 0;
+						td.innerHTML	=	roundedHours(Math.max(task.budgetedhours-task.spenthours,0));
 						tr.appendChild(td);
 
 						var td 	=	document.createElement("TD");
@@ -209,6 +222,11 @@
 
 							var td 	=	document.createElement("TD");
 							td.innerHTML	=	roundedHours(subTask.spenthours);
+							tr.appendChild(td);
+
+							var td 	=	document.createElement("TD");
+							var budget = subTask.budgetedhours ? subTask.budgetedhours : 0;
+							td.innerHTML	=	roundedHours(Math.max(budget-subTask.spenthours,0));
 							tr.appendChild(td);
 
 							var td 	=	document.createElement("TD");

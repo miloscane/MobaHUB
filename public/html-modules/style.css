@@ -2901,8 +2901,11 @@ a{text-decoration:none;color:inherit}
 .projectTaskTable th:nth-child(3), .projectTaskTable td:nth-child(3){
 	width: 100px;
 }
-
 .projectTaskTable th:nth-child(4), .projectTaskTable td:nth-child(4){
+	width: 100px;
+}
+
+.projectTaskTable th:nth-child(5), .projectTaskTable td:nth-child(5){
 	width: 300px;
 }
 
