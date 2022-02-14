@@ -807,7 +807,9 @@
 			pickedProject	=	projectcode;
 			setDateOfPage(date);
 			setUser(engcode);
-			refresh();
+			if(!projectcode){
+				refresh();
+			}
 		}
 
 		function showHours(elem){
@@ -815,14 +817,13 @@
 			findHours(hourJson.engcode,hourJson.date,hourJson.pcode);
 		}
 
-		var pickedProject	=	document.getElementById("projects").querySelectorAll(".whiteButton")[0].dataset.projectcode;
+		//var pickedProject	=	document.getElementById("projects").querySelectorAll(".whiteButton")[0].dataset.projectcode;
+		var pickedProject	=	false;
 		var user			=	infoForPage.user;
 		var currentDate		=	new Date();
 
 
-		if(urlObject.lastproject){
-			pickedProject	=	urlObject.lastproject;
-		}
+		
 		
 		if(urlObject.eng){
 			user	=	urlObject.eng;
@@ -833,8 +834,9 @@
 		}
 
 		if(urlObject.lastproject){
-			findHours(user,currentDate,pickedProject);
+			pickedProject	=	urlObject.lastproject;
 		}
+		findHours(user,currentDate,pickedProject);
 
 		
 		
