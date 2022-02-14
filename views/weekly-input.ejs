@@ -102,11 +102,11 @@
 		}
 
 		function hourInput(elem){
-			if(elem.value>24){
+			/*if(elem.value>24){
 				elem.value=24;
 			}else if(elem.value<0){
 				elem.value=0;
-			}
+			}*/
 			
 			elem.value			=	Number(elem.value);
 			var hourJson		=	{};
@@ -832,7 +832,11 @@
 			currentDate	=	urlObject.date;
 		}
 
-		findHours(user,currentDate,pickedProject);
+		if(urlObject.lastproject){
+			findHours(user,currentDate,pickedProject);
+		}
+
+		
 		
 	</script>
 <%- include ("partials/footer") -%>
