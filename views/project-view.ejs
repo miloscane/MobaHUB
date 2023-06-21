@@ -268,10 +268,24 @@
 			generateCheckboxList(document.getElementsByClassName("filterWrap")[0],"class:filter",[{"name":"Display SubTask names","value":"subtask","default":"1"}],"tableDisplay(this)",true);
 		</script>
 	</div>
+	<div>
+		From: <input type="date" id="date-from" oninput="filterTableWithDates()">
+		 | To: <input type="date" id="date-to" oninput="filterTableWithDates()">
+	</div>
+	<script>
+		function filterTableWithDates(){
+			var from 	=	new Date(document.getElementById("date-from").value).getTime();
+			var to 	=	new Date(document.getElementById("date-to").value).getTime();
+			if(from && to){
+				makeTable(from,to)	
+			}
+			
+		}
+	</script>
 	<div class="projectTable"></div>
 	<script>
 		
-		function makeTable(){
+		function makeTable(from,to){
 			document.getElementsByClassName("projectTable")[0].innerHTML="";
 			
 			var sortTable	=	document.createElement("TABLE");
@@ -385,38 +399,72 @@
 						projectTable.appendChild(tr);
 						
 						
-						
-						for(var k=0;k<projectHours.length;k++){
+						if(from && to){
+							for(var k=0;k<projectHours.length;k++){
+								if(projectHours[k].task==task.title && projectHours[k].subtask==subTask.title && Number(projectHours[k].hours)>0 && Number(projectHours[k].date)>=from && Number(projectHours[k].date)<=to){
+										var tr	=	document.createElement("TR");
+										tr.setAttribute("class","subTaskRow");
+										tr.setAttribute("data-eng",projectHours[k].engcode);
+										tr.setAttribute("data-task",task.title);
+										tr.setAttribute("data-subtask",subTask.title);
+											var td	=	document.createElement("TD");
+											td.innerHTML=datetimeToDate(Number(projectHours[k].date));
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML=projectHours[k].hours;
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML=getUserNameFromCode(projectHours[k].engcode);
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML=(projectHours[k].comment) ? projectHours[k].comment : "";
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML="Edit";
+											td.setAttribute("onclick","redirectWithQuery('/weekly-input')");
+											tr.appendChild(td);
+											
+										projectTable.appendChild(tr);
+									}
+							}
+						}else{
+							for(var k=0;k<projectHours.length;k++){
 								if(projectHours[k].task==task.title && projectHours[k].subtask==subTask.title && Number(projectHours[k].hours)>0){
-									var tr	=	document.createElement("TR");
-									tr.setAttribute("class","subTaskRow");
-									tr.setAttribute("data-eng",projectHours[k].engcode);
-									tr.setAttribute("data-task",task.title);
-									tr.setAttribute("data-subtask",subTask.title);
-										var td	=	document.createElement("TD");
-										td.innerHTML=datetimeToDate(Number(projectHours[k].date));
-										tr.appendChild(td);
-										
-										var td	=	document.createElement("TD");
-										td.innerHTML=projectHours[k].hours;
-										tr.appendChild(td);
-										
-										var td	=	document.createElement("TD");
-										td.innerHTML=getUserNameFromCode(projectHours[k].engcode);
-										tr.appendChild(td);
-										
-										var td	=	document.createElement("TD");
-										td.innerHTML=(projectHours[k].comment) ? projectHours[k].comment : "";
-										tr.appendChild(td);
-										
-										var td	=	document.createElement("TD");
-										td.innerHTML="Edit";
-										td.setAttribute("onclick","redirectWithQuery('/weekly-input')");
-										tr.appendChild(td);
-										
-									projectTable.appendChild(tr);
-								}
+										var tr	=	document.createElement("TR");
+										tr.setAttribute("class","subTaskRow");
+										tr.setAttribute("data-eng",projectHours[k].engcode);
+										tr.setAttribute("data-task",task.title);
+										tr.setAttribute("data-subtask",subTask.title);
+											var td	=	document.createElement("TD");
+											td.innerHTML=datetimeToDate(Number(projectHours[k].date));
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML=projectHours[k].hours;
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML=getUserNameFromCode(projectHours[k].engcode);
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML=(projectHours[k].comment) ? projectHours[k].comment : "";
+											tr.appendChild(td);
+											
+											var td	=	document.createElement("TD");
+											td.innerHTML="Edit";
+											td.setAttribute("onclick","redirectWithQuery('/weekly-input')");
+											tr.appendChild(td);
+											
+										projectTable.appendChild(tr);
+									}
+							}
 						}
+						
 						/*var tr	=	document.createElement("TR");
 						tr.setAttribute("class","taskRow");
 						tr.setAttribute("data-task",task.title);
@@ -432,7 +480,38 @@
 						
 					}
 				}else{
-					for(var j=0;j<projectHours.length;j++){
+					if(from && to){
+						for(var j=0;j<projectHours.length;j++){
+							if(projectHours[j].task==task.title && !projectHours[j].subtask && Number(projectHours[j].hours)>0 && Number(projectHours[j].date)>=from && Number(projectHours[j].date)<=to){
+								var tr	=	document.createElement("TR");
+								tr.setAttribute("class","taskRow");
+								tr.setAttribute("data-task",task.title);
+								tr.setAttribute("data-eng",projectHours[j].engcode);
+									var td	=	document.createElement("TD");
+									td.innerHTML=datetimeToDate(Number(projectHours[j].date));
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML=projectHours[j].hours;
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML=getUserNameFromCode(projectHours[j].engcode);
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML=(projectHours[j].comment) ? projectHours[j].comment : "";
+									tr.appendChild(td);
+									
+									var td	=	document.createElement("TD");
+									td.innerHTML="Edit";
+									td.setAttribute("onclick","window.location.href='/weekly-input?lastproject="+projectHours[j].pcode+"&date="+projectHours[j].date+"&eng="+projectHours[j].engcode+"'")
+									tr.appendChild(td);
+								projectTable.appendChild(tr);
+							}
+						}
+					}else{
+						for(var j=0;j<projectHours.length;j++){
 							if(projectHours[j].task==task.title && !projectHours[j].subtask && Number(projectHours[j].hours)>0){
 								var tr	=	document.createElement("TR");
 								tr.setAttribute("class","taskRow");
@@ -460,7 +539,9 @@
 									tr.appendChild(td);
 								projectTable.appendChild(tr);
 							}
+						}	
 					}
+					
 					/*var tr	=	document.createElement("TR");
 					tr.setAttribute("class","taskRow");
 					tr.setAttribute("data-task",task.title);

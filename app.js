@@ -157,8 +157,6 @@ mongoClient.connect(url,{useUnifiedTopology: true},function(err,client){
 
 
 
-
-
 http.listen(process.env.PORT , function(){
   console.log('Server Started');
 });
@@ -169,6 +167,8 @@ function hashString(string){
 	var hash	=	crypto.createHash('md5').update(string).digest('hex')
 	return hash
 }
+
+
 
 server.get('/login',function(req,res){
 	if(req.session.user){
@@ -301,7 +301,6 @@ server.post('/android-login',function(req,res){
 									}else{
 										res.redirect('/home');
 									}
-									client.close();
 								});
 							}else{
 								res.redirect('/home');
@@ -313,6 +312,8 @@ server.post('/android-login',function(req,res){
 					}else{
 						res.redirect('/android-failed-login');
 					}
+
+					client.close();
 				}
 			});
 		}
@@ -484,7 +485,7 @@ server.post('/postHours',function(req,res){
 										}else{
 											var collection3	=	client.db('MobaHub').collection('Hours');
 											collection3.deleteMany({$or:idsToDelete},function(err,res3){
-												client.close()
+												client.close();
 												res.redirect('/hoursSubmited'+urlQuery);
 											});
 										}
