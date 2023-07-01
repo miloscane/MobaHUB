@@ -273,6 +273,8 @@
 		 | To: <input type="date" id="date-to" oninput="filterTableWithDates()">
 	</div>
 	<script>
+
+		document.getElementById("date-to").value = getDateAsStringForInputObject(new Date());
 		function filterTableWithDates(){
 			var from 	=	new Date(document.getElementById("date-from").value).getTime();
 			var to 	=	new Date(document.getElementById("date-to").value).getTime();

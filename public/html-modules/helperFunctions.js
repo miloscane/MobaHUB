@@ -165,6 +165,14 @@ function generateId(length) {
    return result.join('');
 }
 
+function getDateAsStringForInputObject(date){
+	var yearString	=	date.getFullYear();
+	var month		=	eval(date.getMonth()+1);
+	var monthString	=	(month<10) ? "0" + month : month;
+	var day			=	date.getDate();
+	var dayString	=	(day<10) ? "0" + day : day;
+	return	yearString+"-"+monthString+"-"+dayString;
+}
 
 
 
