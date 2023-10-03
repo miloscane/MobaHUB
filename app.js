@@ -300,20 +300,24 @@ server.post('/android-login',function(req,res){
 										console.log(err)
 									}else{
 										res.redirect('/home');
+										client.close();
 									}
 								});
 							}else{
 								res.redirect('/home');
+								client.close();
 							}
 							
 						}else{
 							res.redirect('/android-failed-login');
+							client.close();
 						}
 					}else{
 						res.redirect('/android-failed-login');
+						client.close();
 					}
 
-					client.close();
+					
 				}
 			});
 		}
