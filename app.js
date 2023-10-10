@@ -1108,6 +1108,7 @@ server.get('/calendar',function(req,res){
 							teamJson.code		=	result[i].code;
 							teamJson.role		=	result[i].role;
 							teamJson.abrv		=	result[i].abrv;
+							teamJson.color	=	result[i].color;
 							teamJson.emails		=	JSON.parse(JSON.stringify(result[i].emails));
 							infoForPage.team.push(teamJson);
 						}

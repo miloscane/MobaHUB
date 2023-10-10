@@ -41,8 +41,8 @@
 			</div>
 		</div>
 		<div class="inline calendarTable">
-			<div class="colorCodes">
-				<div class="colorCodeWrap">
+			<div class="colorCodes" id="color-codes">
+				<!--<div class="colorCodeWrap">
 					<div class="inline colorCode projectStart"></div><div class="inline">Project Start</div>
 				</div>
 				<div class="colorCodeWrap">
@@ -53,8 +53,8 @@
 				</div>
 				<div class="colorCodeWrap">
 					<div class="inline colorCode projectHours"></div><div class="inline">Project Hours</div>
-				</div>
-				<div class="colorCodeWrap">
+				</div>-->
+				<!--<div class="colorCodeWrap">
 					<div class="inline colorCode holiday"></div><div class="inline">Holiday</div>
 				</div>
 				<div class="colorCodeWrap">
@@ -62,8 +62,60 @@
 				</div>
 				<div class="colorCodeWrap">
 					<div class="inline colorCode vacation"></div><div class="inline">Vacation</div>
-				</div>
+				</div>-->
 			</div>
+			<script>
+				for(var i=0;i<infoForPage.team.length;i++){
+					var colorCodeWrap = document.createElement("DIV");
+					colorCodeWrap.setAttribute("class","colorCodeWrap");
+						var colorCode = document.createElement("DIV");
+						colorCode.setAttribute("class","inline colorCode");
+						colorCode.setAttribute("style","background-color:"+infoForPage.team[i].color);
+						colorCodeWrap.appendChild(colorCode);
+
+						var description = document.createElement("DIV");
+						description.setAttribute("class","inline");
+						description.innerHTML = infoForPage.team[i].abrv.toUpperCase();
+						colorCodeWrap.appendChild(description)
+					document.getElementById("color-codes").appendChild(colorCodeWrap);
+				}
+
+				var colorCodeWrap = document.createElement("DIV");
+				colorCodeWrap.setAttribute("class","colorCodeWrap");
+					var colorCode = document.createElement("DIV");
+					colorCode.setAttribute("class","inline colorCode holiday");
+					colorCodeWrap.appendChild(colorCode);
+
+					var description = document.createElement("DIV");
+					description.setAttribute("class","inline");
+					description.innerHTML = "Holiday";
+					colorCodeWrap.appendChild(description)
+				document.getElementById("color-codes").appendChild(colorCodeWrap);
+
+				var colorCodeWrap = document.createElement("DIV");
+				colorCodeWrap.setAttribute("class","colorCodeWrap");
+					var colorCode = document.createElement("DIV");
+					colorCode.setAttribute("class","inline colorCode birthday");
+					colorCodeWrap.appendChild(colorCode);
+
+					var description = document.createElement("DIV");
+					description.setAttribute("class","inline");
+					description.innerHTML = "Birthday";
+					colorCodeWrap.appendChild(description)
+				document.getElementById("color-codes").appendChild(colorCodeWrap);
+
+				var colorCodeWrap = document.createElement("DIV");
+				colorCodeWrap.setAttribute("class","colorCodeWrap");
+					var colorCode = document.createElement("DIV");
+					colorCode.setAttribute("class","inline colorCode vacation");
+					colorCodeWrap.appendChild(colorCode);
+
+					var description = document.createElement("DIV");
+					description.setAttribute("class","inline");
+					description.innerHTML = "Vacation";
+					colorCodeWrap.appendChild(description)
+				document.getElementById("color-codes").appendChild(colorCodeWrap);
+			</script>
 			<table id="calendar-table">
 				<tr>
 					<th>Mon</th>

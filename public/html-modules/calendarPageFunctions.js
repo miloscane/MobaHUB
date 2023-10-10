@@ -64,7 +64,7 @@ function populateCalendar(){
 		var dateTemp	=	Number(element.dataset.date);
 
 		//Project Starts
-		for(var j=0;j<infoForPage.projects.length;j++){
+		/*for(var j=0;j<infoForPage.projects.length;j++){
 			if(isSameDate(dateTemp,infoForPage.projects[j].startdate)){
 				var itemInDate			=	document.createElement("DIV");
 				itemInDate.setAttribute("data-info","Project "+fullProjectNameFromCode(infoForPage.projects[j].code)+" has started.")
@@ -90,7 +90,7 @@ function populateCalendar(){
 				itemInDate.setAttribute("data-info","Project "+fullProjectNameFromCode(infoForPage.projects[j].code)+" has finished.")
 				element.appendChild(itemInDate);
 			}
-		}
+		}*/
 
 		//Project Hours
 		for(var j=0;j<infoForPage.hours.length;j++){
@@ -99,16 +99,20 @@ function populateCalendar(){
 					if(infoForPage.hours[j].pcode=="Vacation"){
 						var itemInDate			=	document.createElement("DIV");
 						itemInDate.setAttribute("class","itemInDate vacation");
+						itemInDate.setAttribute("style","background:linear-gradient(180deg, "+getUserColorFromCode(infoForPage.hours[j].engcode)+" 50%, rgb(0,0,0) 50%)")
 						itemInDate.setAttribute("data-info",getUserNameFromCode(infoForPage.hours[j].engcode) + " booked "+infoForPage.hours[j].hours+" hours of vacation.")
 						itemInDate.setAttribute("data-url","/weekly-input?lastproject="+infoForPage.hours[j].pcode+"&date="+infoForPage.hours[j].date+"&eng="+infoForPage.hours[j].engcode);
 						itemInDate.setAttribute("data-urltag","Edit Hours");
+						itemInDate.setAttribute("data-usercode",infoForPage.hours[j].engcode);
 						element.appendChild(itemInDate);
 					}else{
 						var itemInDate			=	document.createElement("DIV");
-						itemInDate.setAttribute("class","itemInDate projectHours");
+						itemInDate.setAttribute("class","itemInDate");
+						itemInDate.setAttribute("style","background-color:"+getUserColorFromCode(infoForPage.hours[j].engcode));
 						itemInDate.setAttribute("data-info",getUserNameFromCode(infoForPage.hours[j].engcode) + " spent "+infoForPage.hours[j].hours+" hours on "+fullProjectNameFromCode(infoForPage.hours[j].pcode)+".")
 						itemInDate.setAttribute("data-url","/weekly-input?lastproject="+infoForPage.hours[j].pcode+"&date="+infoForPage.hours[j].date+"&eng="+infoForPage.hours[j].engcode);
 						itemInDate.setAttribute("data-urltag","Edit Hours");
+						itemInDate.setAttribute("data-usercode",infoForPage.hours[j].engcode);
 						element.appendChild(itemInDate);
 					}
 					
@@ -136,7 +140,9 @@ function populateCalendar(){
 				if(calendarItem.day==new Date(dateTemp).getDate() && calendarItem.month==new Date(dateTemp).getMonth()+1){
 					var itemInDate			=	document.createElement("DIV");
 					itemInDate.setAttribute("class","itemInDate birthday");
+					itemInDate.setAttribute("style","background:linear-gradient(180deg, "+getUserColorFromCode(calendarItem.eng)+" 50%, rgb(204,0,255) 50%)")
 					itemInDate.setAttribute("data-info","Birthday for: " + getUserNameFromCode(calendarItem.eng));
+					itemInDate.setAttribute("data-usercode",calendarItem.eng);
 					element.appendChild(itemInDate);
 				}
 			}
@@ -168,7 +174,21 @@ function showDailyInfo(elem){
 			var displayItem			=	document.createElement("DIV");
 			displayItem.setAttribute("class","displayItem");
 				var box	=	document.createElement("DIV");
-				box.setAttribute("class","indicator "+item.classList[1]);
+				if(item.classList[1]){
+					if(item.classList[1]=="vacation"){
+						box.setAttribute("class","indicator")
+						box.setAttribute("style","background:linear-gradient(180deg, "+getUserColorFromCode(item.dataset.usercode)+" 50%, rgb(0,0,0) 50%)")
+					}else if(item.classList[1]=="birthday"){
+						box.setAttribute("class","indicator")
+						box.setAttribute("style","background:linear-gradient(180deg, "+getUserColorFromCode(item.dataset.usercode)+" 50%, rgb(204,0,255) 50%)")
+					}else{
+						box.setAttribute("class","indicator "+item.classList[1]);
+					}
+				}else{
+					box.setAttribute("class","indicator");
+					box.setAttribute("style","background-color:"+getUserColorFromCode(item.dataset.usercode))
+				}
+				
 				displayItem.appendChild(box);
 
 				var note		=	document.createElement("DIV");

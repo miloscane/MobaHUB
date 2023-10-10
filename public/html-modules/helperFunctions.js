@@ -54,6 +54,16 @@ function getUserNameFromCode(usercode){
 	return username
 }
 
+function getUserColorFromCode(usercode){
+	var color="";
+	for(var i=0;i<infoForPage.team.length;i++){
+		if(usercode==infoForPage.team[i].code){
+			color	=	infoForPage.team[i].color
+		}
+	}
+	return color
+}
+
 function getUserAbrvFromCode(usercode){
 	var username="";
 	for(var i=0;i<infoForPage.team.length;i++){
