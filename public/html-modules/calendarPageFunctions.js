@@ -113,7 +113,21 @@ function populateCalendar(){
 						itemInDate.setAttribute("data-url","/weekly-input?lastproject="+infoForPage.hours[j].pcode+"&date="+infoForPage.hours[j].date+"&eng="+infoForPage.hours[j].engcode);
 						itemInDate.setAttribute("data-urltag","Edit Hours");
 						itemInDate.setAttribute("data-usercode",infoForPage.hours[j].engcode);
+						itemInDate.setAttribute("data-hourtype","projecthours");
+						var existingItems	=	element.getElementsByClassName("itemInDate");
+						var hoursAlreadyExist = false;//dont show duplicate boxes if one engineer put hours for different projects
+						for(var k=0;k<existingItems.length;k++){
+							if(existingItems[k].dataset.hourtype=="projecthours" && existingItems[k].dataset.usercode==infoForPage.hours[j].engcode){
+								hoursAlreadyExist = true;
+								break;
+							}
+						}
+						if(hoursAlreadyExist){
+							itemInDate.setAttribute("style","background-color:"+getUserColorFromCode(infoForPage.hours[j].engcode)+";display:none");
+							//itemInDate.style = itemInDate.style+";display:none";
+						}
 						element.appendChild(itemInDate);
+						
 					}
 					
 				}
