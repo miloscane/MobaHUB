@@ -21,7 +21,7 @@
 		projectInfo.spenthours	=	spentHours;
 		
 		//Engineers in project
-		var engineers	=	JSON.parse(JSON.stringify(projectInfo.team));
+		var engineers	=	[];
 		for(var i=0;i<projectHours.length;i++){
 			if(engineers.indexOf(projectHours[i].engcode)<0){
 				engineers.push(projectHours[i].engcode);

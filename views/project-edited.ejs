@@ -23,7 +23,7 @@
 			<td>Name:</td>
 			<td><%= project.dispname %></td>
 		</tr>
-		<tr>
+		<!--<tr>
 			<td>Team:</td>
 			<td id="team"></td>
 			<script>
@@ -34,7 +34,7 @@
 				teamString	=	teamString.substring(0,teamString.length-2);
 				document.getElementById("team").innerHTML	=	teamString;
 			</script>
-		</tr>
+		</tr>-->
 		<tr>
 			<td>Start:</td>
 			<td id="start"></td>
@@ -107,7 +107,7 @@
 						teamString	+=	getUserNameFromCode(project.tasks[i].team[j])+", "
 					}
 					teamString		=	teamString.substring(0,teamString.length-2);
-					taskHtml		+=	"<p><b>Team:</b>"+teamString+"</p>";
+					//taskHtml		+=	"<p><b>Team:</b>"+teamString+"</p>";
 					taskHtml		+=	"<p><b>Description:</b>"+project.tasks[i].description+"</p>";
 
 					var subTasksHtml	=	"<p style='padding-left:30px'>";
@@ -130,7 +130,7 @@
 							teamString	+=	getUserNameFromCode(project.tasks[i].subTasks[j].team[k])+", "
 						}
 						teamString		=	teamString.substring(0,teamString.length-2);
-						subTasksHtml		+=	"<p><b>Team:</b>"+teamString+"</p>";
+						//subTasksHtml		+=	"<p><b>Team:</b>"+teamString+"</p>";
 
 						subTasksHtml		+=	"<p><b>Description:</b>"+project.tasks[i].subTasks[j].description+"</p>";
 

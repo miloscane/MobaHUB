@@ -113,7 +113,7 @@ function addTask(elem,elemtoadd,taskJson,addTaskButton){
 	//End Budgeted Hours
 	
 	//Team
-	var itemWrap	=	document.createElement("DIV");
+	/*var itemWrap	=	document.createElement("DIV");
 	itemWrap.setAttribute("class","itemWrap");
 	
 		var itemTitle	=	document.createElement("DIV");
@@ -149,7 +149,7 @@ function addTask(elem,elemtoadd,taskJson,addTaskButton){
 		itemNote.setAttribute("class","itemNote");
 		itemWrap.appendChild(itemNote);
 	
-	task.appendChild(itemWrap);
+	task.appendChild(itemWrap);*/
 	//End Team
 	
 	
@@ -355,7 +355,7 @@ function addSubTask(elem,elemtoadd,subTaskJson){
 	//End Budgeted Hours
 	
 	//Team
-	var itemWrap	=	document.createElement("DIV");
+	/*var itemWrap	=	document.createElement("DIV");
 	itemWrap.setAttribute("class","itemWrap");
 		
 		var itemTitle	=	document.createElement("DIV");
@@ -391,7 +391,7 @@ function addSubTask(elem,elemtoadd,subTaskJson){
 		itemNote.setAttribute("class","itemNote");
 		itemWrap.appendChild(itemNote);
 	
-	subTask.appendChild(itemWrap);
+	subTask.appendChild(itemWrap);*/
 	//End Team
 	
 	
@@ -483,12 +483,12 @@ function submitProject(){
 		//Created Date
 		projectJson.createddate		=	new Date().getTime();
 		//Team
-		projectJson.team	=	[];
+		/*projectJson.team	=	[];
 		for(var i=0;i<wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;i++){
 			if(Number(wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[i].dataset.active)==1){
 				projectJson.team.push(wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[i].dataset.value)
 			}
-		}
+		}*/
 		//Start date
 		projectJson.startdate	=	Number(new Date(wrap.querySelectorAll(".projectStart")[0].value).getTime());
 		
@@ -544,13 +544,13 @@ function submitProject(){
 			taskJson.budgetedhours	=	taskElem.querySelectorAll(".taskBudgetedHours")[0].value;
 			
 			//Team
-			taskJson.team	=	[];
+			/*taskJson.team	=	[];
 			for(var j=0;j<taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;j++){
 				
 				if(Number(taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[j].dataset.active)==1){
 					taskJson.team.push(taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[j].dataset.value)
 				}
-			}
+			}*/
 			
 			//Description
 			taskJson.description	=	taskElem.querySelectorAll(".taskDescription")[0].value;
@@ -576,12 +576,12 @@ function submitProject(){
 				subTaskJson.budgetedhours	=	subTaskElem.querySelectorAll(".subTaskBudgetedHours")[0].value;
 				
 				//Team
-				subTaskJson.team			=	[];
+				/*subTaskJson.team			=	[];
 				for(var k=0;k<subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;k++){
 					if(Number(subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[k].dataset.active)==1){
 						subTaskJson.team.push(subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[k].dataset.value)
 					}
-				}
+				}*/
 				
 				//Description
 				subTaskJson.description		=	subTaskElem.querySelectorAll(".subTaskDescription")[0].value;
@@ -617,12 +617,12 @@ function duplicateProject(){
 	//Created Date
 	projectJson.createddate		=	new Date().getTime();
 	//Team
-	projectJson.team	=	[];
+	/*projectJson.team	=	[];
 	for(var i=0;i<wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;i++){
 		if(Number(wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[i].dataset.active)==1){
 			projectJson.team.push(wrap.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[i].dataset.value)
 		}
-	}
+	}*/
 	//Start date
 	projectJson.startdate	=	Number(new Date(wrap.querySelectorAll(".projectStart")[0].value).getTime());
 	
@@ -678,13 +678,13 @@ function duplicateProject(){
 		taskJson.budgetedhours	=	taskElem.querySelectorAll(".taskBudgetedHours")[0].value;
 		
 		//Team
-		taskJson.team	=	[];
+		/*taskJson.team	=	[];
 		for(var j=0;j<taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;j++){
 			
 			if(Number(taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[j].dataset.active)==1){
 				taskJson.team.push(taskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[j].dataset.value)
 			}
-		}
+		}*/
 		
 		//Description
 		taskJson.description	=	taskElem.querySelectorAll(".taskDescription")[0].value;
@@ -710,12 +710,12 @@ function duplicateProject(){
 			subTaskJson.budgetedhours	=	subTaskElem.querySelectorAll(".subTaskBudgetedHours")[0].value;
 			
 			//Team
-			subTaskJson.team			=	[];
+			/*subTaskJson.team			=	[];
 			for(var k=0;k<subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox").length;k++){
 				if(Number(subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[k].dataset.active)==1){
 					subTaskJson.team.push(subTaskElem.querySelectorAll(".team")[0].querySelectorAll(".checkbox")[k].dataset.value)
 				}
-			}
+			}*/
 			
 			//Description
 			subTaskJson.description		=	subTaskElem.querySelectorAll(".subTaskDescription")[0].value;
@@ -769,7 +769,7 @@ function showProject(projectCode){
 
 		document.getElementsByClassName("projectCompany")[0].value		=	project.company;
 		document.getElementById("project-edit").getElementsByClassName("projectName")[0].value			=	project.dispname;
-		var team	=	[];
+		/*var team	=	[];
 		for(var i=0;i<infoForPage.team.length;i++){
 			var teamElem	=	{};
 			teamElem.name	=	infoForPage.team[i].name.toString();
@@ -783,7 +783,7 @@ function showProject(projectCode){
 				}
 			}
 		}	
-		generateCheckboxList(document.getElementsByClassName("projectTeamWrap")[0],"class:team",team);
+		generateCheckboxList(document.getElementsByClassName("projectTeamWrap")[0],"class:team",team);*/
 		setDateOfInput(document.getElementsByClassName("projectStart")[0],project.startdate);
 		setDateOfInput(document.getElementsByClassName("projectDeadline")[0],project.deadline);
 		generateCheckboxList(document.getElementsByClassName("projectFinishedWrap")[0],"class:finished",[{"name":"","value":1,"default":project.finished}],"markFinished(this)");
@@ -838,14 +838,14 @@ function showProject(projectCode){
 
 		document.getElementsByClassName("projectCompany")[0].value		=	"";
 		document.getElementById("project-edit").getElementsByClassName("projectName")[0].value			=	"";
-		var team	=	[];
+		/*var team	=	[];
 		for(var i=0;i<infoForPage.team.length;i++){
 			var teamElem	=	{};
 			teamElem.name	=	infoForPage.team[i].name.toString();
 			teamElem.value	=	infoForPage.team[i].code.toString();
 			team.push(teamElem);
 		}
-		generateCheckboxList(document.getElementsByClassName("projectTeamWrap")[0],"class:team",team);
+		generateCheckboxList(document.getElementsByClassName("projectTeamWrap")[0],"class:team",team);*/
 		setDateOfInput(document.getElementsByClassName("projectStart")[0],new Date().getTime());
 		setDateOfInput(document.getElementsByClassName("projectDeadline")[0],new Date().getTime());
 		generateCheckboxList(document.getElementsByClassName("projectFinishedWrap")[0],"class:finished",[{"name":"","value":1,"default":0}]);
